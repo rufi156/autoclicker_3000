@@ -85,20 +85,23 @@ def enter_ad():
     ad = None
     stone = None
     timer = 0
-    while timer<30 and (ad is None or (stone is None and gem is None)):
-        ad = ag.locateCenterOnScreen('pic/ad.png', region=REGION, confidence=CONFIDENCE)
-        stone = ag.locateCenterOnScreen('pic/stone.png', region=REGION, confidence=CONFIDENCE)
-        gem = ag.locateCenterOnScreen('pic/gem.png', region=REGION, confidence=CONFIDENCE)
-        time.sleep(1)
-        timer += 1
-
+    while timer<30 and ad is None:
+            ad = ag.locateCenterOnScreen('pic/ad.png', region=REGION, confidence=CONFIDENCE)
+            time.sleep(1)
+            timer += 1
+    if timer = 30:
+        return 0
+    stone = ag.locateCenterOnScreen('pic/stone.png', region=REGION, confidence=CONFIDENCE)
+    gem = ag.locateCenterOnScreen('pic/gem.png', region=REGION, confidence=CONFIDENCE)
     if ad is not None and (stone is not None or gem is not None):
         print('ad found')
         ag.click(ad[0], ad[1])
         return 1
     else:
-        print('ad not found')
+        offer = ag.locateCenterOnScreen('pic/decline_offer.png', region=REGION, confidence=CONFIDENCE)
+        ag.click(offer[0], offer[1])
         return 0
+
 
 def skip_ad():
     arrow = None
@@ -194,6 +197,9 @@ def farm_jr():
     t_1 = threading.Thread(target=handleFinish)
     t_2 = threading.Thread(target=collect_achiev)
     t_3 = threading.Thread(target=declineOffers)
+    t_1.daemon = True
+    t_2.daemon = True
+    t_3.daemon = True
 
     t_1.start()
     t_2.start()
@@ -202,6 +208,7 @@ def farm_jr():
 #farm_jr()
 def farm_ads():
     t_1 = threading.Thread(target=collect_achiev)
+    t_1.daemon = True
     t_1.start()
     while True:
         if enter_ad():
@@ -211,9 +218,7 @@ def farm_ads():
         else:
             reset_run('king')
 
-farm_ads()
-
-
+#farm_ads()
 
 #todo:
 #unify locateAllOnScreen
