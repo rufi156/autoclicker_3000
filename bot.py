@@ -86,10 +86,12 @@ def enter_ad():
     stone = None
     timer = 0
     while timer<30 and ad is None:
-            ad = ag.locateCenterOnScreen('pic/ad.png', region=REGION, confidence=CONFIDENCE)
-            time.sleep(1)
-            timer += 1
+        time.sleep(1)
+        timer += 1
+        ad = ag.locateCenterOnScreen('pic/ad.png', region=REGION, confidence=CONFIDENCE)
+
     if timer == 30:
+        print('timeout')
         return 0
     stone = ag.locateCenterOnScreen('pic/stone.png', region=REGION, confidence=CONFIDENCE)
     gem = ag.locateCenterOnScreen('pic/gem.png', region=REGION, confidence=CONFIDENCE)
@@ -120,14 +122,14 @@ def skip_ad():
         arrow4 = ag.locateCenterOnScreen('pic/ad_arrow4.png', grayscale=True, region=REGION, confidence=CONFIDENCE)
         time.sleep(1)
         timer += 1
-        print(timer)
-    if timer<5:
-        print('arrow found')
-        print([arrow, arrow2, arrow3,arrow4])
-        arrow = list(filter(None, [arrow,arrow2,arrow3,arrow4]))[0]
 
-        if arrow is not None:
-            ag.click(arrow[0], arrow[1])
+    if timer == 5:
+        print('arrow timeout')
+    else:
+        print('arrow found')
+        #print([arrow, arrow2, arrow3,arrow4])
+        arrow = list(filter(None, [arrow,arrow2,arrow3,arrow4]))[0]
+        ag.click(arrow[0], arrow[1])
 
     while exit is None and exit2 is None and exit3 is None and exit4 is None:
         exit = ag.locateCenterOnScreen('pic/ad_x.png', grayscale=True, region=REGION, confidence=CONFIDENCE)
@@ -137,10 +139,9 @@ def skip_ad():
         time.sleep(1)
     print('x found')
 
-    print([exit, exit2, exit3, exit4])
+    #print([exit, exit2, exit3, exit4])
     exit = list(filter(None, [exit, exit2, exit3, exit4]))[0]
-    if exit is not None:
-        ag.click(exit[0], exit[1])
+    ag.click(exit[0], exit[1])
 
     ad = None
     while ad is None:
