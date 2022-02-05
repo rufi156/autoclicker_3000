@@ -1,4 +1,5 @@
 from pyautogui import *
+import threading
 import pyautogui as ag
 import pygetwindow as gw
 import time
@@ -154,10 +155,49 @@ def skip_ad():
         ad = ag.locateCenterOnScreen('pic/ad_accept_reward.png', region=REGION, confidence=CONFIDENCE)
     print('ad collected')
 
+def handlefinish():
+    while True:
+        end = ag.locateCenterOnScreen('pic/finished_run.png', region=REGION, confidence=CONFIDENCE)
+
+        if end is not None:
+            ag.click(end[0], end[1])
+            mode = None
+            while mode is None:
+                time.sleep(0.2)
+                mode = ag.locateCenterOnScreen('pic/jr_normal.png', region=REGION, confidence=CONFIDENCE)
+            print('mode entered')
+
+            confirm = None
+            while confirm is None:
+                ag.click(mode[0], mode[1]+25)
+                time.sleep(0.2)
+                confirm = ag.locateCenterOnScreen('pic/confirm.png', region=REGION, confidence=CONFIDENCE)
+            print('pick_monster entered')
+
+            x = confirm[0]
+            y = confirm[1]
+            while confirm is not None:
+                ag.click(x, y)
+                time.sleep(0.2)
+                confirm = ag.locateCenterOnScreen('pic/confirm.png', region=REGION, confidence=CONFIDENCE)
+            print('run started')
+            time.sleep(600)
+        else:
+            time.sleep(600)
+
+def main():
+    t_1 = threading.Thread(target=handleFinish)
+    t_2 = threading.Thread(target=collect_achiev)
+
+    t_1.start()
+    t_2.start()
+
+main()
+
 #while True:
 #    if not enter_ad():
 #        reset_run('king')
-collect_achiev()
+#collect_achiev()
 """
 skip_ad()
 reset_run('king')
@@ -169,3 +209,16 @@ else:
     rest_run('king')
 print('done')
 """
+#restart():
+#when finished (find finished button)
+#choose mode
+#confirm monsters
+#run started
+
+#todo:
+#unify locateAllOnScreen
+#add try all x/arrow variations
+#add 2 modes:
+#   jr + achiev + reset
+#   king + wait_for_ad + restart/watch_add+restart
+#parallel achiev + ads
