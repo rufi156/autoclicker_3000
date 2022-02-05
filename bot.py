@@ -89,11 +89,11 @@ def enter_ad():
             ad = ag.locateCenterOnScreen('pic/ad.png', region=REGION, confidence=CONFIDENCE)
             time.sleep(1)
             timer += 1
-    if timer = 30:
+    if timer == 30:
         return 0
     stone = ag.locateCenterOnScreen('pic/stone.png', region=REGION, confidence=CONFIDENCE)
     gem = ag.locateCenterOnScreen('pic/gem.png', region=REGION, confidence=CONFIDENCE)
-    if ad is not None and (stone is not None or gem is not None):
+    if stone is not None or gem is not None:
         print('ad found')
         ag.click(ad[0], ad[1])
         return 1
@@ -218,7 +218,7 @@ def farm_ads():
         else:
             reset_run('king')
 
-#farm_ads()
+farm_ads()
 
 #todo:
 #unify locateAllOnScreen
