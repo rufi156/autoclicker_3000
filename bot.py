@@ -85,12 +85,12 @@ def enter_ad():
     ad = None
     stone = None
     timer = 0
-    while timer<30 and ad is None:
-        time.sleep(1)
-        timer += 1
-        ad = ag.locateCenterOnScreen('pic/ad.png', region=REGION, confidence=CONFIDENCE)
+    while timer<35 and ad is None:
+            time.sleep(1)
+            timer += 1
+            ad = ag.locateCenterOnScreen('pic/ad.png', region=REGION, confidence=CONFIDENCE)
 
-    if timer == 30:
+    if timer == 35:
         print('timeout')
         return 0
     stone = ag.locateCenterOnScreen('pic/stone.png', region=REGION, confidence=CONFIDENCE)
