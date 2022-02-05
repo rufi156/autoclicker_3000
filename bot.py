@@ -85,23 +85,19 @@ def enter_ad():
     ad = None
     stone = None
     timer = 0
-    while timer<30 and (ad is None or (stone is None)): #and orb is None)):
+    while timer<30 and (ad is None or (stone is None and gem is None)):
         ad = ag.locateCenterOnScreen('pic/ad.png', region=REGION, confidence=CONFIDENCE)
         stone = ag.locateCenterOnScreen('pic/stone.png', region=REGION, confidence=CONFIDENCE)
-        #orb = ag.locateCenterOnScreen('pic/orb.png', region=REGION, confidence=CONFIDENCE)
-
+        gem = ag.locateCenterOnScreen('pic/gem.png', region=REGION, confidence=CONFIDENCE)
         time.sleep(1)
         timer += 1
-    print('ad found')
 
-    while ad is not None and stone is not None:
+    if ad is not None and (stone is not None or gem is not None):
+        print('ad found')
         ag.click(ad[0], ad[1])
-        time.sleep(1)
-        ad = ag.locateCenterOnScreen('pic/ad.png', region=REGION, confidence=CONFIDENCE)
-    print('ad entered')
-    if ad is not None:
         return 1
     else:
+        print('ad not found')
         return 0
 
 def skip_ad():
@@ -155,7 +151,7 @@ def skip_ad():
         ad = ag.locateCenterOnScreen('pic/ad_accept_reward.png', region=REGION, confidence=CONFIDENCE)
     print('ad collected')
 
-def handlefinish():
+def handleFinish():
     while True:
         end = ag.locateCenterOnScreen('pic/finished_run.png', region=REGION, confidence=CONFIDENCE)
 
@@ -185,35 +181,39 @@ def handlefinish():
         else:
             time.sleep(600)
 
-def main():
+def declineOffers():
+    while True:
+        offer = ag.locateCenterOnScreen('pic/decline_offer.png', region=REGION, confidence=CONFIDENCE)
+        if offer is None:
+            time.sleep(5)
+        else:
+            ag.click(offer[0], offer[1])
+            time.sleep(5)
+
+def farm_jr():
     t_1 = threading.Thread(target=handleFinish)
     t_2 = threading.Thread(target=collect_achiev)
+    t_3 = threading.Thread(target=declineOffers)
 
     t_1.start()
     t_2.start()
+    t_3.start()
 
-main()
+#farm_jr()
+def farm_ads():
+    t_1 = threading.Thread(target=collect_achiev)
+    t_1.start()
+    while True:
+        if enter_ad():
+            time.sleep(40)
+            skip_ad()
+            reset_run('king')
+        else:
+            reset_run('king')
 
-#while True:
-#    if not enter_ad():
-#        reset_run('king')
-#collect_achiev()
-"""
-skip_ad()
-reset_run('king')
-if not enter_ad():
-    reset_run('king')
-else:
-    time.sleep(40)
-    skip_ad()
-    rest_run('king')
-print('done')
-"""
-#restart():
-#when finished (find finished button)
-#choose mode
-#confirm monsters
-#run started
+farm_ads()
+
+
 
 #todo:
 #unify locateAllOnScreen
