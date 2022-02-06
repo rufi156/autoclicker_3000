@@ -75,12 +75,20 @@ def locateAll(pic, timeout=60*60):
     timer = 0
     while timer<timeout and point is None:
         point = ag.locateAllOnScreen(PICTURE_PATH+pic, region=REGION, confidence=CONFIDENCE)
-        time.sleep(0.5)
-        timer += 0.5
+        time.sleep(1)
+        timer += 1
     if timer == timeout:
         return 0
     else:
-        centers = list(map(lambda x: ag.center(x), point))
+        print(list(point))
+        if not list(point):
+            print('repeat point')
+            point = ag.locateAllOnScreen(PICTURE_PATH+pic, region=REGION, confidence=CONFIDENCE)
+        #centers = list(map(lambda x: ag.center(x), list(point)))
+        centers = [ag.center(x) for x in list(point)]
+        while not centers:
+            print('repeat centers')
+            centers = [ag.center(x) for x in list(point)]
         print(centers)
         centers = cluster(centers, 1)
         print(centers)
@@ -183,7 +191,7 @@ def handleFinish():
             print('run restarted')
             with open('restart_log.txt', 'a') as log:
                 log.write('restart at: %s\n' % (datetime.datetime.now()))
-        time.sleep(600)
+        time.sleep(60)
 
 def declineOffers():
     """
@@ -294,9 +302,10 @@ def farm_ads():
             reset_run(0)
 
 #farm_ads()
-#farm_jr()
+farm_jr()
 #achiev_loop()
 #reset_run(0)
+
 
 
 #todo:
