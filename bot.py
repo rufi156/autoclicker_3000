@@ -7,18 +7,37 @@ import pyautogui as ag
 import pygetwindow as gw
 import time
 import keyboard
-import random
-import win32api, win32con
 from PIL import ImageGrab
 from functools import partial
 ImageGrab.grab = partial(ImageGrab.grab, all_screens=True)
 
+###
+#Bot for Summoners Greed 31.01.2022
+#farming ads for stones for special monsters:
+#   king normal > wait for ad seller > if stones > watch&collect > restart
+#farming jr normal for gems and gold
+#   parallel collect gems for achievements, decline offers, reset run when complete
+#
+#farming ads:
+#ads last ~35s and end with double arrow  or x in right upper corner
+#/pic/x and /pic/arrow contain known variations of those
+#all are tested, if found the ad can be skipped
+#if arrow/x is not recognised it waits for manual user click
+#
+###
+
+#find window with BlueStacks and set that as working region
 region_window = gw.getWindowsWithTitle('BlueStack')[0]
 REGION = (region_window.left, region_window.top, region_window.width, region_window.height)
 CONFIDENCE = 0.9
 PICTURE_PATH = 'pic/'
 
 def cluster(array, sort_by):
+    """
+    Clusters points. Img recognition often finds mutiple instances. It reduces it to number of points = clusters
+    Arg: array of points, 0,1 sort by point.x or point.y
+    Ret: points representing clusters
+    """
     clusters = DBSCAN(eps=10, min_samples=1).fit(array)
     dic = {}
     for i,cluster_label in enumerate(clusters.labels_):
@@ -28,6 +47,12 @@ def cluster(array, sort_by):
     return representatives
 
 def locate(pic, timeout=60*60):
+    """
+    try to find given image for timeout seconds or until found
+    Arg: img to serach for
+    Ret:    0 timeout
+            1 point of center of the img found
+    """
     point = None
     timer = 0
     while timer<timeout and point is None:
@@ -40,6 +65,11 @@ def locate(pic, timeout=60*60):
         return point
 
 def locateAll(pic, timeout=60*60):
+    """
+    try to find all instances of given img
+    Arg: img
+    Ret: array of center points of found img instances
+    """
     point = None
     timer = 0
     while timer<timeout and point is None:
@@ -54,6 +84,12 @@ def locateAll(pic, timeout=60*60):
         return centers
 
 def click_until(point, until, timeout=60*60, conf_modifier=0):
+    """
+    try to click on point until img is detected as a safeguard from faulty clicks
+    Arg: point, img, optionl conf_modifier to modify confidence of img search
+    Ret:    0 timeout
+            1 center point of img found
+    """
     exit = None
     timer = 0
     while timer<timeout and exit is None:
@@ -67,6 +103,12 @@ def click_until(point, until, timeout=60*60, conf_modifier=0):
         return exit
 
 def collect_achiev(achiev):
+    """
+    collect avaiable gems for achievements
+    Arg: center point of achievements button
+    Ret:    0 failed to open achievements
+            1 gems collected
+    """
     exit = click_until(achiev, 'exit.png')
     if not exit:
         return 0
@@ -80,6 +122,9 @@ def collect_achiev(achiev):
     return 1
 
 def achiev_loop():
+    """
+    checks if there are any achievements completed > attempts to collect them
+    """
     while True:
         achiev = None
         while True:
@@ -96,6 +141,10 @@ def achiev_loop():
             print('achiev collected')
 
 def reset_run(level):
+    """
+    restets level
+    Arg: reset into given level
+    """
     settings = locate('settings.png')
     if not settings:
         print('settings timeout')
@@ -116,6 +165,9 @@ def reset_run(level):
     print('run restarted')
 
 def handleFinish():
+    """
+    checks for finished run screen and resets run if found
+    """
     while True:
         end = ag.locateCenterOnScreen('pic/finished_run.png', region=REGION, confidence=CONFIDENCE)
 
@@ -129,6 +181,9 @@ def handleFinish():
         time.sleep(600)
 
 def declineOffers():
+    """
+    checks for offers popups and declines them
+    """
     while True:
         offer = ag.locateCenterOnScreen('pic/decline_offer.png', region=REGION, confidence=CONFIDENCE)
         if offer is not None:
@@ -136,6 +191,9 @@ def declineOffers():
         time.sleep(5)
 
 def enter_ad():
+    """
+    checks for ads accepts if stone ads, declines if other
+    """
     ad = None
     stone = None
     timer = 0
@@ -158,6 +216,9 @@ def enter_ad():
         return 0
 
 def skip_ad():
+    """
+    checks for arrows and x at the end of ad and clicks them to end ad watching
+    """
     arrow_list = list(filter(lambda file: file.endswith('.PNG'), os.listdir('./pic/arrow')))
     arrow = None
     timer = 0
@@ -192,6 +253,9 @@ def skip_ad():
     print('ad reward collected')
 
 def farm_jr():
+    """
+    parallel collect gems for achievements, decline offers and reset run when finished
+    """
     t_1 = threading.Thread(target=handleFinish)
     t_2 = threading.Thread(target=achiev_loop)
     t_3 = threading.Thread(target=declineOffers)
@@ -208,6 +272,11 @@ def farm_jr():
         pass
 
 def farm_ads():
+    """
+    checks for relevant ads, watches them and collects rewards
+    then reset run
+    parallel collect available achievements
+    """
     t_1 = threading.Thread(target=achiev_loop)
     t_1.daemon = True
     t_1.start()
