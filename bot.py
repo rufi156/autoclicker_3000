@@ -1,3 +1,5 @@
+import numpy as np
+from sklearn.cluster import KMeans
 from pyautogui import *
 import threading
 import pyautogui as ag
@@ -13,6 +15,13 @@ ImageGrab.grab = partial(ImageGrab.grab, all_screens=True)
 region_window = gw.getWindowsWithTitle('BlueStack')[0]
 REGION = (region_window.left, region_window.top, region_window.width, region_window.height)
 CONFIDENCE = 0.9
+
+def cluster(array, cluster_num, sort_by):
+    k_means = KMeans(init='k-means++', n_clusters=cluster_num, n_init=10)
+    k_means.fit(array)
+    cluster_centers = k_means.cluster_centers_
+    sorted = cluster_centers[cluster_centers[:,sort_by].argsort()]
+    return sorted
 
 def collect_achiev():
     """
@@ -36,6 +45,7 @@ def collect_achiev():
         while collect is None:
             collect = ag.locateAllOnScreen('pic/achievement_collectable.png', region=REGION, confidence=CONFIDENCE)
         centers = list(map(lambda x: ag.center(x), collect))
+        centers = cluster(centers, 3, 1)
 
         for c in centers:
             ag.click(c[0], c[1])
@@ -45,7 +55,7 @@ def collect_achiev():
         ag.click(exit[0], exit[1])
         print('exit')
 
-def reset_run(level):
+def reset_run():
     settings = None
     while settings is None:
         settings = ag.locateCenterOnScreen('pic/settings.png', region=REGION, confidence=CONFIDENCE)
@@ -63,7 +73,7 @@ def reset_run(level):
     while mode is None:
         ag.click(map[0], map[1])
         time.sleep(0.2)
-        mode = ag.locateCenterOnScreen('pic/'+level+'_normal.png', region=REGION, confidence=CONFIDENCE)
+        mode = ag.locateCenterOnScreen('pic/king_normal.png', region=REGION, confidence=CONFIDENCE)
     print('mode entered')
 
     confirm = None
@@ -86,9 +96,9 @@ def enter_ad():
     stone = None
     timer = 0
     while timer<35 and ad is None:
-            time.sleep(1)
-            timer += 1
-            ad = ag.locateCenterOnScreen('pic/ad.png', region=REGION, confidence=CONFIDENCE)
+        ad = ag.locateCenterOnScreen('pic/ad.png', region=REGION, confidence=CONFIDENCE)
+        time.sleep(1)
+        timer += 1
 
     if timer == 35:
         print('timeout')
@@ -198,6 +208,7 @@ def farm_jr():
     t_1 = threading.Thread(target=handleFinish)
     t_2 = threading.Thread(target=collect_achiev)
     t_3 = threading.Thread(target=declineOffers)
+
     t_1.daemon = True
     t_2.daemon = True
     t_3.daemon = True
@@ -206,20 +217,26 @@ def farm_jr():
     t_2.start()
     t_3.start()
 
-#farm_jr()
+    while not keyboard.is_pressed('q'):
+        pass
+
+
 def farm_ads():
     t_1 = threading.Thread(target=collect_achiev)
     t_1.daemon = True
     t_1.start()
-    while True:
+    while not keyboard.is_pressed('q'):
         if enter_ad():
             time.sleep(40)
             skip_ad()
-            reset_run('king')
+            reset_run()
         else:
-            reset_run('king')
+            reset_run()
 
-farm_ads()
+#farm_ads()
+#farm_jr()
+
+
 
 #todo:
 #unify locateAllOnScreen
