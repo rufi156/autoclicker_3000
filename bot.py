@@ -15,6 +15,7 @@ ImageGrab.grab = partial(ImageGrab.grab, all_screens=True)
 region_window = gw.getWindowsWithTitle('BlueStack')[0]
 REGION = (region_window.left, region_window.top, region_window.width, region_window.height)
 CONFIDENCE = 0.9
+PICTURE_PATH = 'pic/'
 
 def cluster(array, cluster_num, sort_by):
     k_means = KMeans(init='k-means++', n_clusters=cluster_num, n_init=10)
@@ -23,27 +24,50 @@ def cluster(array, cluster_num, sort_by):
     sorted = cluster_centers[cluster_centers[:,sort_by].argsort()]
     return sorted
 
+def locate(pic, timeout=60*60):
+    point = None
+    point = 0
+    while timer<timeout and point is None:
+        point = ag.locateCenterOnScreen(PICTURE_PATH+pic, region=REGION, confidence=CONFIDENCE)
+        time.sleep(1)
+        timer += 1
+    if timer == timeout:
+        return 0
+    else:
+        return point
+
+def click_until(point, until, timeout=60*60):
+    exit = None
+    timer = 0
+    while timer<timeout and exit is None:
+        ag.click(point[0], point[1])
+        time.sleep(0.5)
+        timer += 0.5
+        exit = ag.locateCenterOnScreen(PICTURE_PATH+until, region=REGION, confidence=CONFIDENCE)
+    if timer == timeout:
+        return 0
+    else:
+        return exit
+
+
 def collect_achiev():
     """
     checks whether achievements are available, if true then collects them and exits achievements window
     """
     while True:
-        achiev = None
-        while achiev is None:
-            achiev = ag.locateCenterOnScreen('pic/achievements_on.png', region=REGION, confidence=CONFIDENCE)
-            time.sleep(1)
-        print('achiev found')
+        achiev = locate('achievements_on.png')
+        if not achiev:
+            print('timeout')
+            continue
 
-        exit = None
-        while exit is None:
-            ag.click(achiev[0], achiev[1])
-            time.sleep(0.1)
-            exit = ag.locateCenterOnScreen('pic/exit.png', region=REGION, confidence=CONFIDENCE)
-        print('achiev entered')
+        exit = click_until(achiev, 'exit.png')
+        if not exit:
+            print('timeout')
+            continue
+        else:
+            print('achiev entered')
 
-        collect = None
-        while collect is None:
-            collect = ag.locateAllOnScreen('pic/achievement_collectable.png', region=REGION, confidence=CONFIDENCE)
+        collect = ag.locateAllOnScreen('pic/achievement_collectable.png', region=REGION, confidence=CONFIDENCE)
         centers = list(map(lambda x: ag.center(x), collect))
         centers = cluster(centers, 3, 1)
 
@@ -53,7 +77,7 @@ def collect_achiev():
         print('achiev collected')
 
         ag.click(exit[0], exit[1])
-        print('exit')
+        print('achiev exited')
 
 def reset_run():
     settings = None
