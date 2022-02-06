@@ -292,3 +292,6 @@ def farm_ads():
 #farm_jr()
 #achiev_loop()
 #reset_run(0)
+
+#todo:
+#interface to call the script
