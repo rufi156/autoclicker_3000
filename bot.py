@@ -81,6 +81,7 @@ def locateAll(pic, timeout=3600):
         return 0
     else:
         print(list(point))
+        print(list(point))
         if not list(point):
             print('repeat point')
             point = ag.locateAllOnScreen(PICTURE_PATH+pic, region=REGION, confidence=CONFIDENCE)
