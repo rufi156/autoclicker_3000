@@ -26,7 +26,7 @@ def cluster(array, cluster_num, sort_by):
 
 def locate(pic, timeout=60*60):
     point = None
-    point = 0
+    timer = 0
     while timer<timeout and point is None:
         point = ag.locateCenterOnScreen(PICTURE_PATH+pic, region=REGION, confidence=CONFIDENCE)
         time.sleep(1)
@@ -59,6 +59,8 @@ def collect_achiev():
         if not achiev:
             print('timeout')
             continue
+        else:
+            print('achiev found')
 
         exit = click_until(achiev, 'exit.png')
         if not exit:
@@ -259,6 +261,7 @@ def farm_ads():
 
 #farm_ads()
 #farm_jr()
+collect_achiev()
 
 
 
