@@ -36,14 +36,28 @@ def locate(pic, timeout=60*60):
     else:
         return point
 
-def click_until(point, until, timeout=60*60):
+def locateAll(pic, point_num, timeout=60*60):
+    point = None
+    timer = 0
+    while timer<timeout and point is None:
+        point = ag.locateAllOnScreen(PICTURE_PATH+pic, region=REGION, confidence=CONFIDENCE)
+        time.sleep(0.5)
+        timer += 0.5
+    if timer == timeout:
+        return 0
+    else:
+        centers = list(map(lambda x: ag.center(x), point))
+        centers = cluster(centers, point_num, 1)
+        return centers
+
+def click_until(point, until, timeout=60*60, conf_modifier=0):
     exit = None
     timer = 0
     while timer<timeout and exit is None:
         ag.click(point[0], point[1])
         time.sleep(0.5)
         timer += 0.5
-        exit = ag.locateCenterOnScreen(PICTURE_PATH+until, region=REGION, confidence=CONFIDENCE)
+        exit = ag.locateCenterOnScreen(PICTURE_PATH+until, region=REGION, confidence=CONFIDENCE+conf_modifier)
     if timer == timeout:
         return 0
     else:
@@ -51,10 +65,10 @@ def click_until(point, until, timeout=60*60):
 
 
 def collect_achiev(achiev):
-        exit = click_until(achiev, 'exit.png')
-        if not exit:
+        if not click_until(achiev, 'exit.png'):
             return 0
 
+        locateAll('achievement_collectable.png')
         collect = ag.locateAllOnScreen('pic/achievement_collectable.png', region=REGION, confidence=CONFIDENCE)
         centers = list(map(lambda x: ag.center(x), collect))
         centers = cluster(centers, 3, 1)
@@ -82,41 +96,24 @@ def achiev_loop():
         else:
             print('achiev collected')
 
-def reset_run():
-    settings = None
-    while settings is None:
-        settings = ag.locateCenterOnScreen('pic/settings.png', region=REGION, confidence=CONFIDENCE)
-        time.sleep(1)
-    print('settings found')
+def reset_run(level):
+    settings = locate('settings.png')
+    if not settings:
+        print('settings timeout')
+    else:
+        print('settings found')
 
-    map = None
-    while map is None:
-        ag.click(settings[0], settings[1])
-        time.sleep(0.2)
-        map = ag.locateCenterOnScreen('pic/map_select.png', region=REGION, confidence=CONFIDENCE)
-    print('settings entered')
+    map = click_until(settings, 'map_select.png')
+    if not map:
+        print('settings timeout')
+    else:
+        print('settings entered')
 
-    mode = None
-    while mode is None:
-        ag.click(map[0], map[1])
-        time.sleep(0.2)
-        mode = ag.locateCenterOnScreen('pic/king_normal.png', region=REGION, confidence=CONFIDENCE)
-    print('mode entered')
-
-    confirm = None
-    while confirm is None:
-        ag.click(mode[0], mode[1]+25)
-        time.sleep(0.2)
-        confirm = ag.locateCenterOnScreen('pic/confirm.png', region=REGION, confidence=CONFIDENCE)
-    print('pick_monster entered')
-
-    x = confirm[0]
-    y = confirm[1]
-    while confirm is not None:
-        ag.click(x, y)
-        time.sleep(0.2)
-        confirm = ag.locateCenterOnScreen('pic/confirm.png', region=REGION, confidence=CONFIDENCE)
-    print('run started')
+    click_until(map, 'normal.png')
+    mode = locateAll('normal.png', 3)
+    mode = mode[level]
+    confirm = click_until(mode, 'confirm.png')
+    click_until(confirm, 'settings.png')
 
 def enter_ad():
     ad = None
@@ -262,8 +259,11 @@ def farm_ads():
 
 #farm_ads()
 #farm_jr()
-achiev_loop()
+#achiev_loop()
+reset_run(0)
 
+#exit = ag.locateCenterOnScreen('pic/map_select.png', region=REGION, confidence=CONFIDENCE-0.2)
+#print(exit)
 
 
 #todo:
