@@ -63,22 +63,21 @@ def click_until(point, until, timeout=60*60, conf_modifier=0):
     else:
         return exit
 
-
 def collect_achiev(achiev):
-        if not click_until(achiev, 'exit.png'):
-            return 0
+    if not click_until(achiev, 'exit.png'):
+        return 0
 
-        locateAll('achievement_collectable.png')
-        collect = ag.locateAllOnScreen('pic/achievement_collectable.png', region=REGION, confidence=CONFIDENCE)
-        centers = list(map(lambda x: ag.center(x), collect))
-        centers = cluster(centers, 3, 1)
+    locateAll('achievement_collectable.png')
+    collect = ag.locateAllOnScreen('pic/achievement_collectable.png', region=REGION, confidence=CONFIDENCE)
+    centers = list(map(lambda x: ag.center(x), collect))
+    centers = cluster(centers, 3, 1)
 
-        for c in centers:
-            ag.click(c[0], c[1])
-            time.sleep(0.05)
+    for c in centers:
+        ag.click(c[0], c[1])
+        time.sleep(0.05)
 
-        ag.click(exit[0], exit[1])
-        return 1
+    ag.click(exit[0], exit[1])
+    return 1
 
 def achiev_loop():
     while True:
@@ -114,6 +113,29 @@ def reset_run(level):
     mode = mode[level]
     confirm = click_until(mode, 'confirm.png')
     click_until(confirm, 'settings.png')
+    print('run restarted')
+
+def handleFinish():
+    while True:
+        end = ag.locateCenterOnScreen('pic/finished_run.png', region=REGION, confidence=CONFIDENCE)
+
+        if end is not None:
+            ag.click(end[0], end[1])
+            mode = locateAll('normal.png', 3)
+            mode = mode[2]
+            confirm = click_until(mode, 'confirm.png')
+            click_until(confirm, 'settings.png')
+            print('run restarted')
+
+        time.sleep(600)
+
+def declineOffers():
+    while True:
+        offer = ag.locateCenterOnScreen('pic/decline_offer.png', region=REGION, confidence=CONFIDENCE)
+        if offer is not None:
+            ag.click(offer[0], offer[1])
+
+        time.sleep(5)
 
 def enter_ad():
     ad = None
@@ -137,7 +159,6 @@ def enter_ad():
         offer = ag.locateCenterOnScreen('pic/decline_offer.png', region=REGION, confidence=CONFIDENCE)
         ag.click(offer[0], offer[1])
         return 0
-
 
 def skip_ad():
     arrow = None
@@ -189,48 +210,10 @@ def skip_ad():
         ad = ag.locateCenterOnScreen('pic/ad_accept_reward.png', region=REGION, confidence=CONFIDENCE)
     print('ad collected')
 
-def handleFinish():
-    while True:
-        end = ag.locateCenterOnScreen('pic/finished_run.png', region=REGION, confidence=CONFIDENCE)
-
-        if end is not None:
-            ag.click(end[0], end[1])
-            mode = None
-            while mode is None:
-                time.sleep(0.2)
-                mode = ag.locateCenterOnScreen('pic/jr_normal.png', region=REGION, confidence=CONFIDENCE)
-            print('mode entered')
-
-            confirm = None
-            while confirm is None:
-                ag.click(mode[0], mode[1]+25)
-                time.sleep(0.2)
-                confirm = ag.locateCenterOnScreen('pic/confirm.png', region=REGION, confidence=CONFIDENCE)
-            print('pick_monster entered')
-
-            x = confirm[0]
-            y = confirm[1]
-            while confirm is not None:
-                ag.click(x, y)
-                time.sleep(0.2)
-                confirm = ag.locateCenterOnScreen('pic/confirm.png', region=REGION, confidence=CONFIDENCE)
-            print('run started')
-            time.sleep(600)
-        else:
-            time.sleep(600)
-
-def declineOffers():
-    while True:
-        offer = ag.locateCenterOnScreen('pic/decline_offer.png', region=REGION, confidence=CONFIDENCE)
-        if offer is None:
-            time.sleep(5)
-        else:
-            ag.click(offer[0], offer[1])
-            time.sleep(5)
 
 def farm_jr():
     t_1 = threading.Thread(target=handleFinish)
-    t_2 = threading.Thread(target=collect_achiev)
+    t_2 = threading.Thread(target=achiev_loop)
     t_3 = threading.Thread(target=declineOffers)
 
     t_1.daemon = True
@@ -244,32 +227,26 @@ def farm_jr():
     while not keyboard.is_pressed('q'):
         pass
 
-
 def farm_ads():
-    t_1 = threading.Thread(target=collect_achiev)
+    t_1 = threading.Thread(target=achiev_loop)
     t_1.daemon = True
     t_1.start()
     while not keyboard.is_pressed('q'):
         if enter_ad():
             time.sleep(40)
             skip_ad()
-            reset_run()
+            reset_run(0)
         else:
-            reset_run()
+            reset_run(0)
 
 #farm_ads()
 #farm_jr()
 #achiev_loop()
-reset_run(0)
+#reset_run(0)
 
-#exit = ag.locateCenterOnScreen('pic/map_select.png', region=REGION, confidence=CONFIDENCE-0.2)
-#print(exit)
 
 
 #todo:
-#unify locateAllOnScreen
+
 #add try all x/arrow variations
-#add 2 modes:
-#   jr + achiev + reset
-#   king + wait_for_ad + restart/watch_add+restart
-#parallel achiev + ads
+#rework clustering
