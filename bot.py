@@ -1,5 +1,6 @@
 import numpy as np
 from sklearn.cluster import DBSCAN
+import os
 from pyautogui import *
 import threading
 import pyautogui as ag
@@ -147,8 +148,7 @@ def enter_ad():
         print('timeout')
         return 0
     stone = ag.locateCenterOnScreen('pic/stone.png', region=REGION, confidence=CONFIDENCE)
-    gem = ag.locateCenterOnScreen('pic/gem.png', region=REGION, confidence=CONFIDENCE)
-    if stone is not None or gem is not None:
+    if stone is not None:
         print('ad found')
         ag.click(ad[0], ad[1])
         return 1
@@ -158,20 +158,14 @@ def enter_ad():
         return 0
 
 def skip_ad():
+    arrow_list = list(filter(lambda file: file.endswith('.PNG'), os.listdir('./pic/arrow')))
     arrow = None
-    arrow2 = None
-    arrow3 = None
-    arrow4 = None
-    exit = None
-    exit2 = None
-    exit3 = None
-    exit4 = None
     timer = 0
-    while timer<5 and arrow is None and arrow2 is None and arrow3 is None and arrow4 is None:
-        arrow = ag.locateCenterOnScreen('pic/ad_arrow.png', grayscale=True, region=REGION, confidence=CONFIDENCE)
-        arrow2 = ag.locateCenterOnScreen('pic/ad_arrow2.png', grayscale=True, region=REGION, confidence=CONFIDENCE)
-        arrow3 = ag.locateCenterOnScreen('pic/ad_arrow3.png', grayscale=True, region=REGION, confidence=CONFIDENCE)
-        arrow4 = ag.locateCenterOnScreen('pic/ad_arrow4.png', grayscale=True, region=REGION, confidence=CONFIDENCE)
+    while timer<5 and arrow is None:
+        for image in arrow_list:
+            arrow = ag.locateCenterOnScreen('pic/arrow/'+image, grayscale=True, region=REGION, confidence=CONFIDENCE)
+            if arrow is not None:
+                break
         time.sleep(1)
         timer += 1
 
@@ -179,34 +173,23 @@ def skip_ad():
         print('arrow timeout')
     else:
         print('arrow found')
-        #print([arrow, arrow2, arrow3,arrow4])
-        arrow = list(filter(None, [arrow,arrow2,arrow3,arrow4]))[0]
         ag.click(arrow[0], arrow[1])
 
-    while exit is None and exit2 is None and exit3 is None and exit4 is None:
-        exit = ag.locateCenterOnScreen('pic/ad_x.png', grayscale=True, region=REGION, confidence=CONFIDENCE)
-        exit2 = ag.locateCenterOnScreen('pic/ad_x2.png', grayscale=True, region=REGION, confidence=CONFIDENCE)
-        exit3 = ag.locateCenterOnScreen('pic/ad_x3.png', grayscale=True, region=REGION, confidence=CONFIDENCE)
-        exit4 = ag.locateCenterOnScreen('pic/ad_x4.png', grayscale=True, region=REGION, confidence=CONFIDENCE)
+    x_list = list(filter(lambda file: file.endswith('.PNG'), os.listdir('./pic/x')))
+    exit = None
+    while exit is None:
+        for image in x_list:
+            exit = ag.locateCenterOnScreen('pic/x/'+image, grayscale=True, region=REGION, confidence=CONFIDENCE)
+            if exit is not None:
+                break
         time.sleep(1)
     print('x found')
 
-    #print([exit, exit2, exit3, exit4])
-    exit = list(filter(None, [exit, exit2, exit3, exit4]))[0]
     ag.click(exit[0], exit[1])
 
-    ad = None
-    while ad is None:
-        time.sleep(0.2)
-        ad = ag.locateCenterOnScreen('pic/ad_accept_reward.png', region=REGION, confidence=CONFIDENCE)
-    print('ad exited')
-
-    while ad is not None:
-        ag.click(ad[0], ad[1])
-        time.sleep(0.2)
-        ad = ag.locateCenterOnScreen('pic/ad_accept_reward.png', region=REGION, confidence=CONFIDENCE)
-    print('ad collected')
-
+    ad = locate('ad_accept_reward.png')
+    ag.click(ad[0], ad[1])
+    print('ad reward collected')
 
 def farm_jr():
     t_1 = threading.Thread(target=handleFinish)
@@ -237,12 +220,6 @@ def farm_ads():
             reset_run(0)
 
 #farm_ads()
-farm_jr()
+#farm_jr()
 #achiev_loop()
 #reset_run(0)
-#print(cluster([[1,10],[2,11],[5,10],[20,20],[100,101]], 1))
-
-
-#todo:
-#add try all x/arrow variations
-#rework clustering
