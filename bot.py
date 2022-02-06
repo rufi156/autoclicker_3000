@@ -1,6 +1,7 @@
 import numpy as np
 from sklearn.cluster import DBSCAN
 import os
+import datetime
 from pyautogui import *
 import threading
 import pyautogui as ag
@@ -80,7 +81,9 @@ def locateAll(pic, timeout=60*60):
         return 0
     else:
         centers = list(map(lambda x: ag.center(x), point))
+        print(centers)
         centers = cluster(centers, 1)
+        print(centers)
         return centers
 
 def click_until(point, until, timeout=60*60, conf_modifier=0):
@@ -178,6 +181,8 @@ def handleFinish():
             confirm = click_until(mode, 'confirm.png')
             click_until(confirm, 'settings.png')
             print('run restarted')
+            with open('restart_log.txt', 'a') as log:
+                log.write('restart at: %s\n' % (datetime.datetime.now()))
         time.sleep(600)
 
 def declineOffers():
@@ -293,5 +298,7 @@ def farm_ads():
 #achiev_loop()
 #reset_run(0)
 
+
 #todo:
 #interface to call the script
+#sometimes locateAll returns error when passing array to cluster
