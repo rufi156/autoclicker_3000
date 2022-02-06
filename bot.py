@@ -1,5 +1,5 @@
 import numpy as np
-from sklearn.cluster import KMeans
+from sklearn.cluster import DBSCAN
 from pyautogui import *
 import threading
 import pyautogui as ag
@@ -17,12 +17,14 @@ REGION = (region_window.left, region_window.top, region_window.width, region_win
 CONFIDENCE = 0.9
 PICTURE_PATH = 'pic/'
 
-def cluster(array, cluster_num, sort_by):
-    k_means = KMeans(init='k-means++', n_clusters=cluster_num, n_init=10)
-    k_means.fit(array)
-    cluster_centers = k_means.cluster_centers_
-    sorted = cluster_centers[cluster_centers[:,sort_by].argsort()]
-    return sorted
+def cluster(array, sort_by):
+    clusters = DBSCAN(eps=10, min_samples=1).fit(array)
+    dic = {}
+    for i,cluster_label in enumerate(clusters.labels_):
+        dic[cluster_label] = array[i]
+    representatives = list(dic.values())
+    representatives = sorted(representatives, key=lambda tup: tup[1])
+    return representatives
 
 def locate(pic, timeout=60*60):
     point = None
@@ -36,7 +38,7 @@ def locate(pic, timeout=60*60):
     else:
         return point
 
-def locateAll(pic, point_num, timeout=60*60):
+def locateAll(pic, timeout=60*60):
     point = None
     timer = 0
     while timer<timeout and point is None:
@@ -47,7 +49,7 @@ def locateAll(pic, point_num, timeout=60*60):
         return 0
     else:
         centers = list(map(lambda x: ag.center(x), point))
-        centers = cluster(centers, point_num, 1)
+        centers = cluster(centers, 1)
         return centers
 
 def click_until(point, until, timeout=60*60, conf_modifier=0):
@@ -64,14 +66,11 @@ def click_until(point, until, timeout=60*60, conf_modifier=0):
         return exit
 
 def collect_achiev(achiev):
-    if not click_until(achiev, 'exit.png'):
+    exit = click_until(achiev, 'exit.png')
+    if not exit:
         return 0
 
-    locateAll('achievement_collectable.png')
-    collect = ag.locateAllOnScreen('pic/achievement_collectable.png', region=REGION, confidence=CONFIDENCE)
-    centers = list(map(lambda x: ag.center(x), collect))
-    centers = cluster(centers, 3, 1)
-
+    centers = locateAll('achievement_collectable.png')
     for c in centers:
         ag.click(c[0], c[1])
         time.sleep(0.05)
@@ -109,7 +108,7 @@ def reset_run(level):
         print('settings entered')
 
     click_until(map, 'normal.png')
-    mode = locateAll('normal.png', 3)
+    mode = locateAll('normal.png')
     mode = mode[level]
     confirm = click_until(mode, 'confirm.png')
     click_until(confirm, 'settings.png')
@@ -121,7 +120,7 @@ def handleFinish():
 
         if end is not None:
             ag.click(end[0], end[1])
-            mode = locateAll('normal.png', 3)
+            mode = locateAll('normal.png')
             mode = mode[2]
             confirm = click_until(mode, 'confirm.png')
             click_until(confirm, 'settings.png')
@@ -239,14 +238,13 @@ def farm_ads():
         else:
             reset_run(0)
 
-#farm_ads()
+farm_ads()
 #farm_jr()
 #achiev_loop()
 #reset_run(0)
-
+#print(cluster([[1,10],[2,11],[5,10],[20,20],[100,101]], 1))
 
 
 #todo:
-
 #add try all x/arrow variations
 #rework clustering
