@@ -47,7 +47,7 @@ def cluster(array, sort_by):
     representatives = sorted(representatives, key=lambda tup: tup[1])
     return representatives
 
-def locate(pic, timeout=60*60):
+def locate(pic, timeout=3600):
     """
     try to find given image for timeout seconds or until found
     Arg: img to serach for
@@ -65,7 +65,7 @@ def locate(pic, timeout=60*60):
     else:
         return point
 
-def locateAll(pic, timeout=60*60):
+def locateAll(pic, timeout=3600):
     """
     try to find all instances of given img
     Arg: img
