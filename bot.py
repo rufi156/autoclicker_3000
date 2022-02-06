@@ -50,24 +50,10 @@ def click_until(point, until, timeout=60*60):
         return exit
 
 
-def collect_achiev():
-    """
-    checks whether achievements are available, if true then collects them and exits achievements window
-    """
-    while True:
-        achiev = locate('achievements_on.png')
-        if not achiev:
-            print('timeout')
-            continue
-        else:
-            print('achiev found')
-
+def collect_achiev(achiev):
         exit = click_until(achiev, 'exit.png')
         if not exit:
-            print('timeout')
-            continue
-        else:
-            print('achiev entered')
+            return 0
 
         collect = ag.locateAllOnScreen('pic/achievement_collectable.png', region=REGION, confidence=CONFIDENCE)
         centers = list(map(lambda x: ag.center(x), collect))
@@ -76,10 +62,25 @@ def collect_achiev():
         for c in centers:
             ag.click(c[0], c[1])
             time.sleep(0.05)
-        print('achiev collected')
 
         ag.click(exit[0], exit[1])
-        print('achiev exited')
+        return 1
+
+def achiev_loop():
+    while True:
+        achiev = None
+        while True:
+            achiev = locate('achievements_on.png')
+            if not achiev:
+                print('timeout')
+                continue
+            else:
+                print('achiev found')
+                break
+        if not collect_achiev(achiev):
+            print('timeout')
+        else:
+            print('achiev collected')
 
 def reset_run():
     settings = None
@@ -261,7 +262,7 @@ def farm_ads():
 
 #farm_ads()
 #farm_jr()
-collect_achiev()
+achiev_loop()
 
 
 
