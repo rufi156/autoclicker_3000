@@ -125,7 +125,6 @@ def handleFinish():
             confirm = click_until(mode, 'confirm.png')
             click_until(confirm, 'settings.png')
             print('run restarted')
-
         time.sleep(600)
 
 def declineOffers():
@@ -133,7 +132,6 @@ def declineOffers():
         offer = ag.locateCenterOnScreen('pic/decline_offer.png', region=REGION, confidence=CONFIDENCE)
         if offer is not None:
             ag.click(offer[0], offer[1])
-
         time.sleep(5)
 
 def enter_ad():
@@ -142,8 +140,8 @@ def enter_ad():
     timer = 0
     while timer<35 and ad is None:
         ad = ag.locateCenterOnScreen('pic/ad.png', region=REGION, confidence=CONFIDENCE)
-        time.sleep(1)
-        timer += 1
+        time.sleep(0.5)
+        timer += 0.5
 
     if timer == 35:
         print('timeout')
@@ -238,8 +236,8 @@ def farm_ads():
         else:
             reset_run(0)
 
-farm_ads()
-#farm_jr()
+#farm_ads()
+farm_jr()
 #achiev_loop()
 #reset_run(0)
 #print(cluster([[1,10],[2,11],[5,10],[20,20],[100,101]], 1))
