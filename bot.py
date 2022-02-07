@@ -1,6 +1,7 @@
 import numpy as np
 from sklearn.cluster import DBSCAN
 import os
+import argparse
 import datetime
 from pyautogui import *
 import threading
@@ -337,11 +338,36 @@ def farm_summon():
     while summon():
         achiev()
 
-#farm_summon()
-#farm_ads()
-#farm_jr()
-#achiev_loop()
-#reset_run(0)
+def main(args):
+    modeList = [k for k, v in vars(args).items() if v]
+    if 'lvl' in modeList:
+        level = vars(args)['lvl']
+
+    if 's' in modeList:
+        farm_summon()
+    elif 'ad' in modeList:
+        farm_ad()
+    elif 'jr' in modeList:
+        farm_jr()
+    elif 'a' in modeList:
+        achiev_loop()
+    elif 'r' in modeList:
+        reset_run(level)
+    else:
+        print('wrong option, select -h for help')
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Automate repetetive tasks in game.')
+    actionType = parser.add_mutually_exclusive_group(required=True)
+    actionType.add_argument("-s", action="store_true", help="spend ords for summonings")
+    actionType.add_argument("-ad", action="store_true", help="farm ads for stones")
+    actionType.add_argument("-jr", action="store_true", help="farm jr")
+    actionType.add_argument("-a", action="store_true", help="collect achievemens")
+    actionType.add_argument("-r", action="store_true", help="reset run")
+    actionType = parser.add_mutually_exclusive_group(required=False)
+    actionType.add_argument("-lvl", type=int, help="reset to level 0-King, 1-Chief, 2-JR", choices = [0,1,2])
+    args = parser.parse_args()
+    main(args)
 
 
 #todo:
