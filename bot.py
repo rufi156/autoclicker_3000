@@ -71,25 +71,23 @@ def locateAll(pic, timeout=3600):
     Arg: img
     Ret: array of center points of found img instances
     """
-    point = None
+    point = []
     timer = 0
-    while timer<timeout and point is None:
-        point = ag.locateAllOnScreen(PICTURE_PATH+pic, region=REGION, confidence=CONFIDENCE)
+    while timer<timeout and len(point) == 0:
+        point = list(ag.locateAllOnScreen(PICTURE_PATH+pic, region=REGION, confidence=CONFIDENCE))
         time.sleep(1)
         timer += 1
     if timer == timeout:
         return 0
     else:
-        print(list(point))
-        print(list(point))
-        if not list(point):
+        if not point:
             print('repeat point')
-            point = ag.locateAllOnScreen(PICTURE_PATH+pic, region=REGION, confidence=CONFIDENCE)
+            point = list(ag.locateAllOnScreen(PICTURE_PATH+pic, region=REGION, confidence=CONFIDENCE))
         #centers = list(map(lambda x: ag.center(x), list(point)))
-        centers = [ag.center(x) for x in list(point)]
+        centers = [ag.center(x) for x in point]
         while not centers:
             print('repeat centers')
-            centers = [ag.center(x) for x in list(point)]
+            centers = [ag.center(x) for x in point]
         print(centers)
         centers = cluster(centers, 1)
         print(centers)
@@ -303,10 +301,10 @@ def farm_ads():
             reset_run(0)
 
 #farm_ads()
-farm_jr()
+#farm_jr()
 #achiev_loop()
 #reset_run(0)
-
+print(locateAll('normal.png'))
 
 
 #todo:
