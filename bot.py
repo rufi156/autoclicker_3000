@@ -71,23 +71,23 @@ def locateAll(pic, timeout=3600):
     Arg: img
     Ret: array of center points of found img instances
     """
-    point = []
+    points = []
     timer = 0
-    while timer<timeout and len(point) == 0:
-        point = list(ag.locateAllOnScreen(PICTURE_PATH+pic, region=REGION, confidence=CONFIDENCE))
+    while timer<timeout and len(points) == 0:
+        points = list(ag.locateAllOnScreen(PICTURE_PATH+pic, region=REGION, confidence=CONFIDENCE))
         time.sleep(1)
         timer += 1
     if timer == timeout:
         return 0
     else:
-        if not point:
+        if not points:
             print('repeat point')
-            point = list(ag.locateAllOnScreen(PICTURE_PATH+pic, region=REGION, confidence=CONFIDENCE))
+            points = list(ag.locateAllOnScreen(PICTURE_PATH+pic, region=REGION, confidence=CONFIDENCE))
         #centers = list(map(lambda x: ag.center(x), list(point)))
-        centers = [ag.center(x) for x in point]
-        while not centers:
+        centers = [ag.center(x) for x in points]
+        if not centers:
             print('repeat centers')
-            centers = [ag.center(x) for x in point]
+            centers = [ag.center(x) for x in points]
         print(centers)
         centers = cluster(centers, 1)
         print(centers)
@@ -131,9 +131,27 @@ def collect_achiev(achiev):
     ag.click(exit[0], exit[1])
     return 1
 
-def achiev_loop():
+def achiev():
     """
     checks if there are any achievements completed > attempts to collect them
+    """
+    achiev = None
+    while True:
+        achiev = locate('achievements_on.png')
+        if not achiev:
+            print('timeout')
+            continue
+        else:
+            print('achiev found')
+            break
+    if not collect_achiev(achiev):
+        print('timeout')
+    else:
+        print('achiev collected')
+
+def achiev_loop():
+    """
+    Indefinite achiev()
     """
     while True:
         achiev = None
@@ -182,14 +200,16 @@ def handleFinish():
         end = ag.locateCenterOnScreen('pic/finished_run.png', region=REGION, confidence=CONFIDENCE)
 
         if end is not None:
+            print('run ended')
             ag.click(end[0], end[1])
             mode = locateAll('normal.png')
             mode = mode[2]
             confirm = click_until(mode, 'confirm.png')
             click_until(confirm, 'settings.png')
             print('run restarted')
-            with open('restart_log.txt', 'a') as log:
-                log.write('restart at: %s\n' % (datetime.datetime.now()))
+            #optional logging of restarts
+            #with open('restart_log.txt', 'a') as log:
+            #    log.write('restart at: %s\n' % (datetime.datetime.now()))
         time.sleep(60)
 
 def declineOffers():
@@ -264,6 +284,20 @@ def skip_ad():
     ag.click(ad[0], ad[1])
     print('ad reward collected')
 
+def summon():
+    """
+    useup orb to summon monsters
+    """
+    portal = locate('summon_ready.png', 3)
+    if not portal:
+        return 0
+    summon = click_until(portal, 'orb_summon.png')
+    skip = click_until(summon, 'skip_summon.png')
+    conf = click_until(skip, 'confirm_summon.png')
+    exit = click_until(conf, 'exit_summon.png')
+    ag.click(exit[0], exit[1])
+    return 1
+
 def farm_jr():
     """
     parallel collect gems for achievements, decline offers and reset run when finished
@@ -300,13 +334,23 @@ def farm_ads():
         else:
             reset_run(0)
 
+def farm_summon():
+    """
+    summon and collect achievements interchangably
+    simultaneously decline offers (not sure if working properly, not colliding with the loop)
+    """
+    t_1 = threading.Thread(target=declineOffers)
+    t_1.daemon = True
+    t_1.start()
+    while summon():
+        achiev()
+
+#farm_summon()
 #farm_ads()
 #farm_jr()
 #achiev_loop()
 #reset_run(0)
-print(locateAll('normal.png'))
 
 
 #todo:
 #interface to call the script
-#sometimes locateAll returns error when passing array to cluster
