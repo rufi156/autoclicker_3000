@@ -80,17 +80,9 @@ def locateAll(pic, timeout=3600):
     if timer == timeout:
         return 0
     else:
-        if not points:
-            print('repeat point')
-            points = list(ag.locateAllOnScreen(PICTURE_PATH+pic, region=REGION, confidence=CONFIDENCE))
         #centers = list(map(lambda x: ag.center(x), list(point)))
         centers = [ag.center(x) for x in points]
-        if not centers:
-            print('repeat centers')
-            centers = [ag.center(x) for x in points]
-        print(centers)
         centers = cluster(centers, 1)
-        print(centers)
         return centers
 
 def click_until(point, until, timeout=60*60, conf_modifier=0):
@@ -354,3 +346,4 @@ def farm_summon():
 
 #todo:
 #interface to call the script
+#decline offers doesnt always work, maybe doesnt work on sellers only on ads?
