@@ -83,7 +83,9 @@ def locateAll(pic, timeout=3600):
     else:
         #centers = list(map(lambda x: ag.center(x), list(point)))
         centers = [ag.center(x) for x in points]
+        print(centers)
         centers = cluster(centers, 1)
+        print(centers)
         return centers
 
 def click_until(point, until, timeout=60*60, conf_modifier=0):
@@ -373,3 +375,4 @@ if __name__ == "__main__":
 #todo:
 #interface to call the script
 #decline offers doesnt always work, maybe doesnt work on sellers only on ads?
+#farm_summons stops when orbs reach <100
