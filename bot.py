@@ -365,7 +365,7 @@ def farm_mythic():
         x = map[0]+40
         y = map[1]
         ag.moveTo(x,y)
-        ag.drag(0,-120,0.2,button='left')
+        ag.drag(0,-140,0.2,button='left')
         ag.click(ag.position())
         locate_n_click('facebook_connected.png')
         locate_n_click('exit.png')
@@ -381,7 +381,7 @@ def farm_mythic():
         locate_n_click('settings.png')
         locate_n_click('fb_not_connected.png')
         locate_n_click('fb_connect_now.png')
-        locate_n_click('fb_accept.png', 4)
+        locate_n_click('fb_accept.png', 6)
         save = locate('save_found.png')
         ag.click(save.x, save.y+50)
         locate_n_click('save_confirm.png')
