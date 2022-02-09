@@ -357,7 +357,7 @@ def farm_mythic():
     """
     summon red orbs for non epic, reset save file if summoned epic
     """
-    while True:
+    while not keyboard.is_pressed('q'):
         locate_n_click('exit.png', 6)
         locate_n_click('exit.png')
         locate_n_click('settings.png')
@@ -365,7 +365,7 @@ def farm_mythic():
         x = map[0]+40
         y = map[1]
         ag.moveTo(x,y)
-        ag.drag(0,-120,0.5,button='left')
+        ag.drag(0,-120,0.2,button='left')
         ag.click(ag.position())
         locate_n_click('facebook_connected.png')
         locate_n_click('exit.png')
