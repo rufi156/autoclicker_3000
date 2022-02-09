@@ -325,9 +325,6 @@ def farm_jr():
     while not keyboard.is_pressed('q'):
         pass
 
-def pekos_magic():
-    pass
-
 def farm_ads():
     """
     checks for relevant ads, watches them and collects rewards
@@ -394,30 +391,32 @@ if __name__ == "__main__":
 #farm_summons stops when orbs reach <100
 
 
-
-locate_n_click('exit.png')
-locate_n_click('exit.png')
-locate_n_click('settings.png')
-map = locate('map_select.png')
-x = map[0]+40
-y = map[1]
-ag.moveTo(x,y)
-ag.drag(0,-120,0.5,button='left')
-ag.click(ag.position())
-locate_n_click('facebook_connected.png')
-locate_n_click('exit.png')
-locate_n_click('summon_ready.png')
-locate_n_click('red_summon.png')
-locate_n_click('skip_summon.png')
-epic = locate('epic_summon.png', 2)
-if epic == None:
-    sys.exit()
-locate_n_click('confirm_summon.png')
-locate_n_click('exit.png')
-locate_n_click('settings.png')
-locate_n_click('fb_not_connected.png')
-locate_n_click('fb_connect_now.png')
-locate_n_click('fb_accept.png',4)
-save = locate('save_found.png')
-ag.click(save.x, save.y+50)
-locate_n_click('save_confirm.png')
+def farm_mythic():
+    while True:
+        locate_n_click('exit.png')
+        locate_n_click('exit.png')
+        locate_n_click('settings.png')
+        map = locate('map_select.png')
+        x = map[0]+40
+        y = map[1]
+        ag.moveTo(x,y)
+        ag.drag(0,-120,0.5,button='left')
+        ag.click(ag.position())
+        locate_n_click('facebook_connected.png')
+        locate_n_click('exit.png')
+        locate_n_click('summon_ready.png')
+        locate_n_click('red_summon.png')
+        locate_n_click('skip_summon.png')
+        epic = locate('epic_summon.png', 2)
+        if epic == None:
+            print('Non epic found!')
+            break
+        locate_n_click('confirm_summon.png')
+        locate_n_click('exit.png')
+        locate_n_click('settings.png')
+        locate_n_click('fb_not_connected.png')
+        locate_n_click('fb_connect_now.png')
+        locate_n_click('fb_accept.png',4)
+        save = locate('save_found.png')
+        ag.click(save.x, save.y+50)
+        locate_n_click('save_confirm.png')
