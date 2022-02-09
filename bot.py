@@ -59,8 +59,8 @@ def locate(pic, timeout=3600):
     timer = 0
     while timer<timeout and point is None:
         point = ag.locateCenterOnScreen(PICTURE_PATH+pic, region=REGION, confidence=CONFIDENCE)
-        time.sleep(1)
-        timer += 1
+        time.sleep(0.5)
+        timer += 0.5
     if timer == timeout:
         return 0
     else:
@@ -76,8 +76,8 @@ def locateAll(pic, timeout=3600):
     timer = 0
     while timer<timeout and len(points) == 0:
         points = list(ag.locateAllOnScreen(PICTURE_PATH+pic, region=REGION, confidence=CONFIDENCE))
-        time.sleep(1)
-        timer += 1
+        time.sleep(0.5)
+        timer += 0.5
     if timer == timeout:
         return 0
     else:
@@ -319,6 +319,9 @@ def farm_jr():
 
     while not keyboard.is_pressed('q'):
         pass
+
+def pekos_magic():
+
 
 def farm_ads():
     """
