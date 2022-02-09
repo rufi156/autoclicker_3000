@@ -66,6 +66,11 @@ def locate(pic, timeout=3600):
     else:
         return point
 
+def locate_n_click(img, timeout=3):
+    pic = locate(img, timeout)
+    if pic is not None:
+        ag.click(pic.x, pic.y)
+
 def locateAll(pic, timeout=3600):
     """
     try to find all instances of given img
@@ -321,7 +326,7 @@ def farm_jr():
         pass
 
 def pekos_magic():
-
+    pass
 
 def farm_ads():
     """
@@ -350,7 +355,7 @@ def farm_summon():
     t_1.start()
     while summon():
         achiev()
-
+"""
 def main(args):
     modeList = [k for k, v in vars(args).items() if v]
     if 'lvl' in modeList:
@@ -381,9 +386,38 @@ if __name__ == "__main__":
     actionType.add_argument("-lvl", type=int, help="reset to level 0-King, 1-Chief, 2-JR", choices = [0,1,2])
     args = parser.parse_args()
     main(args)
-
+"""
 
 #todo:
 #interface to call the script
 #decline offers doesnt always work, maybe doesnt work on sellers only on ads?
 #farm_summons stops when orbs reach <100
+
+
+
+locate_n_click('exit.png')
+locate_n_click('exit.png')
+locate_n_click('settings.png')
+map = locate('map_select.png')
+x = map[0]+40
+y = map[1]
+ag.moveTo(x,y)
+ag.drag(0,-120,0.5,button='left')
+ag.click(ag.position())
+locate_n_click('facebook_connected.png')
+locate_n_click('exit.png')
+locate_n_click('summon_ready.png')
+locate_n_click('red_summon.png')
+locate_n_click('skip_summon.png')
+epic = locate('epic_summon.png', 2)
+if epic == None:
+    sys.exit()
+locate_n_click('confirm_summon.png')
+locate_n_click('exit.png')
+locate_n_click('settings.png')
+locate_n_click('fb_not_connected.png')
+locate_n_click('fb_connect_now.png')
+locate_n_click('fb_accept.png',4)
+save = locate('save_found.png')
+ag.click(save.x, save.y+50)
+locate_n_click('save_confirm.png')
