@@ -168,7 +168,7 @@ def achiev_loop():
         else:
             print('achiev collected')
 
-def reset_run(level):
+def reset_normal_run(level):
     """
     restets level
     Arg: reset into given level
@@ -338,9 +338,9 @@ def farm_ads():
         if enter_ad():
             time.sleep(40)
             skip_ad()
-            reset_run(0)
+            reset_normal_run(0)
         else:
-            reset_run(0)
+            reset_normal_run(0)
 
 def farm_summon():
     """
@@ -352,48 +352,13 @@ def farm_summon():
     t_1.start()
     while summon():
         achiev()
-"""
-def main(args):
-    modeList = [k for k, v in vars(args).items() if v]
-    if 'lvl' in modeList:
-        level = vars(args)['lvl']
-
-    if 's' in modeList:
-        farm_summon()
-    elif 'ad' in modeList:
-        farm_ad()
-    elif 'jr' in modeList:
-        farm_jr()
-    elif 'a' in modeList:
-        achiev_loop()
-    elif 'r' in modeList:
-        reset_run(level)
-    else:
-        print('wrong option, select -h for help')
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Automate repetetive tasks in game.')
-    actionType = parser.add_mutually_exclusive_group(required=True)
-    actionType.add_argument("-s", action="store_true", help="spend ords for summonings")
-    actionType.add_argument("-ad", action="store_true", help="farm ads for stones")
-    actionType.add_argument("-jr", action="store_true", help="farm jr")
-    actionType.add_argument("-a", action="store_true", help="collect achievemens")
-    actionType.add_argument("-r", action="store_true", help="reset run")
-    actionType = parser.add_mutually_exclusive_group(required=False)
-    actionType.add_argument("-lvl", type=int, help="reset to level 0-King, 1-Chief, 2-JR", choices = [0,1,2])
-    args = parser.parse_args()
-    main(args)
-"""
-
-#todo:
-#interface to call the script
-#decline offers doesnt always work, maybe doesnt work on sellers only on ads?
-#farm_summons stops when orbs reach <100
-
 
 def farm_mythic():
+    """
+    summon red orbs for non epic, reset save file if summoned epic
+    """
     while True:
-        locate_n_click('exit.png')
+        locate_n_click('exit.png', 6)
         locate_n_click('exit.png')
         locate_n_click('settings.png')
         map = locate('map_select.png')
@@ -408,7 +373,7 @@ def farm_mythic():
         locate_n_click('red_summon.png')
         locate_n_click('skip_summon.png')
         epic = locate('epic_summon.png', 2)
-        if epic == None:
+        if not epic:
             print('Non epic found!')
             break
         locate_n_click('confirm_summon.png')
@@ -416,7 +381,42 @@ def farm_mythic():
         locate_n_click('settings.png')
         locate_n_click('fb_not_connected.png')
         locate_n_click('fb_connect_now.png')
-        locate_n_click('fb_accept.png',4)
+        locate_n_click('fb_accept.png', 4)
         save = locate('save_found.png')
         ag.click(save.x, save.y+50)
         locate_n_click('save_confirm.png')
+
+
+def main(args):
+    modeList = [k for k, v in vars(args).items() if v]
+    if 'lvl' in modeList:
+        level = vars(args)['lvl']
+
+    if 's' in modeList:
+        farm_summon()
+    elif 'ad' in modeList:
+        farm_ad()
+    elif 'jr' in modeList:
+        farm_jr()
+    elif 'a' in modeList:
+        achiev_loop()
+    elif 'r' in modeList:
+        reset_normal_run(level)
+    elif 'm' in modeList:
+        farm_mythic()
+    else:
+        print('wrong option, select -h for help')
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Automate repetetive tasks in game.')
+    actionType = parser.add_mutually_exclusive_group(required=True)
+    actionType.add_argument("-s", action="store_true", help="spend ords for summonings")
+    actionType.add_argument("-ad", action="store_true", help="farm ads for stones")
+    actionType.add_argument("-jr", action="store_true", help="farm jr")
+    actionType.add_argument("-a", action="store_true", help="collect achievemens")
+    actionType.add_argument("-r", action="store_true", help="reset normal run")
+    actionType.add_argument("-m", action="store_true", help="fb glitch summon for mythic")
+    actionType = parser.add_mutually_exclusive_group(required=False)
+    actionType.add_argument("-lvl", type=int, help="reset to level 0-King, 1-Chief, 2-JR", choices = [0,1,2])
+    args = parser.parse_args()
+    main(args)
