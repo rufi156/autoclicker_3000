@@ -213,8 +213,11 @@ def declineOffers():
     """
     while True:
         offer = ag.locateCenterOnScreen('pic/decline_offer.png', region=REGION, confidence=CONFIDENCE)
+        offer2 = ag.locateCenterOnScreen('pic/seller_decline.png', region=REGION, confidence=CONFIDENCE)
         if offer is not None:
             ag.click(offer[0], offer[1])
+        elif offer2 is not None:
+            ag.click(offer2[0], offer2[1])
         time.sleep(5)
 
 def enter_ad():
