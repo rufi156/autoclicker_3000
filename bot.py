@@ -381,7 +381,7 @@ def farm_mythic():
         locate_n_click('settings.png')
         locate_n_click('fb_not_connected.png')
         locate_n_click('fb_connect_now.png')
-        locate_n_click('fb_accept.png', 6)
+        locate_n_click('fb_accept.png', 10)
         save = locate('save_found.png')
         ag.click(save.x, save.y+50)
         locate_n_click('save_confirm.png')
