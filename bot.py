@@ -386,6 +386,22 @@ def farm_mythic():
         ag.click(save.x, save.y+50)
         locate_n_click('save_confirm.png')
 
+def pekos_magic():
+    """
+    kill first two jr hard bosses and reset
+    """
+    t_1 = threading.Thread(target=achiev_loop)
+    t_1.daemon = True
+    t_1.start()
+    while not keyboard.is_pressed('q'):
+        time.sleep(30)
+        locate_n_click('settings.png',10)
+        locate_n_click('map_select.png')
+        hard = locateAll('hard.png')
+        jr = hard[2]
+        ag.click(jr[0], jr[1])
+        conf = locate('confirm.png')
+        click_until(conf, 'settings.png')
 
 def main(args):
     modeList = [k for k, v in vars(args).items() if v]
@@ -404,6 +420,8 @@ def main(args):
         reset_normal_run(level)
     elif 'm' in modeList:
         farm_mythic()
+    elif 'p' in modeList:
+        pekos_magic()
     else:
         print('wrong option, select -h for help')
 
@@ -416,6 +434,7 @@ if __name__ == "__main__":
     actionType.add_argument("-a", action="store_true", help="collect achievemens")
     actionType.add_argument("-r", action="store_true", help="reset normal run")
     actionType.add_argument("-m", action="store_true", help="fb glitch summon for mythic")
+    actionType.add_argument("-p", action="store_true", help="pekos magic")
     actionType = parser.add_mutually_exclusive_group(required=False)
     actionType.add_argument("-lvl", type=int, help="reset to level 0-King, 1-Chief, 2-JR", choices = [0,1,2])
     args = parser.parse_args()
