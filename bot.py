@@ -97,7 +97,7 @@ def locateAll(pic, timeout=3600):
 def click_until(point, until, timeout=3600):
     """
     try to click on point until img is detected as a safeguard from faulty clicks
-    Arg: point, img, optionl conf_modifier to modify confidence of img search
+    Arg: point, img
     Ret:    0 timeout
             1 center point of img found
     """
@@ -107,7 +107,7 @@ def click_until(point, until, timeout=3600):
         ag.click(point[0], point[1])
         time.sleep(0.5)
         timer += 0.5
-        exit = ag.locateCenterOnScreen(PICTURE_PATH+until, region=REGION, confidence=CONFIDENCE+conf_modifier)
+        exit = ag.locateCenterOnScreen(PICTURE_PATH+until, region=REGION, confidence=CONFIDENCE)
     if timer == timeout:
         return 0
     else:
