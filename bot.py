@@ -125,6 +125,8 @@ def collect_achiev(achiev):
         return 0
 
     centers = locateAll('achievement_collectable.png', 10)
+    if not centers:
+        return 0
     for c in centers:
         ag.click(c[0], c[1])
         time.sleep(0.05)
@@ -402,7 +404,7 @@ def pekos_magic():
         ag.click(jr[0], jr[1])
         conf = locate('confirm.png')
         click_until(conf, 'settings.png')
-"""
+
 def main(args):
     modeList = [k for k, v in vars(args).items() if v]
     if 'lvl' in modeList:
@@ -440,10 +442,13 @@ if __name__ == "__main__":
     args = parser.parse_args()
     main(args)
 
+
 """
 print(REGION)
 print(ag.locateCenterOnScreen('pic/Przechwytywanie.PNG', region=REGION, confidence=CONFIDENCE))
 print(ag.size())
-x=0
-if x=1 :
-    print(x)
+"""
+
+#todo:
+#check how pyautogui behaves on diff resolution
+#rescale pictures
