@@ -249,6 +249,7 @@ def enter_ad():
         return 1
     else:
         offer = ag.locateCenterOnScreen('pic/decline_offer.png', region=REGION, confidence=CONFIDENCE)
+        time.sleep(0.05)
         ag.click(offer[0], offer[1])
         return 0
 
