@@ -15,6 +15,7 @@ ImageGrab.grab = partial(ImageGrab.grab, all_screens=True)
 
 ###
 #Bot for Summoners Greed 31.01.2022
+#Author: RafalRobet K.
 #farming ads for stones for special monsters:
 #   king normal > wait for ad seller > if stones > watch&collect > restart
 #farming jr normal for gems and gold
@@ -48,7 +49,7 @@ def cluster(array, sort_by):
     representatives = sorted(representatives, key=lambda tup: tup[1])
     return representatives
 
-def locate(pic, timeout=3600):
+def locate(img, timeout=3600):
     """
     try to find given image for timeout seconds or until found
     Arg: img to serach for
@@ -58,7 +59,7 @@ def locate(pic, timeout=3600):
     point = None
     timer = 0
     while timer<timeout and point is None:
-        point = ag.locateCenterOnScreen(PICTURE_PATH+pic, region=REGION, confidence=CONFIDENCE)
+        point = ag.locateCenterOnScreen(PICTURE_PATH+img, region=REGION, confidence=CONFIDENCE)
         time.sleep(0.5)
         timer += 0.5
     if timer == timeout:
@@ -68,7 +69,7 @@ def locate(pic, timeout=3600):
 
 def locate_n_click(img, timeout=3):
     pic = locate(img, timeout)
-    if pic is not None:
+    if pic != 0:
         ag.click(pic.x, pic.y)
 
 def locateAll(pic, timeout=3600):
@@ -88,12 +89,12 @@ def locateAll(pic, timeout=3600):
     else:
         #centers = list(map(lambda x: ag.center(x), list(point)))
         centers = [ag.center(x) for x in points]
-        print(centers)
+        #print(centers)
         centers = cluster(centers, 1)
-        print(centers)
+        #print(centers)
         return centers
 
-def click_until(point, until, timeout=60*60, conf_modifier=0):
+def click_until(point, until, timeout=3600):
     """
     try to click on point until img is detected as a safeguard from faulty clicks
     Arg: point, img, optionl conf_modifier to modify confidence of img search
@@ -123,7 +124,7 @@ def collect_achiev(achiev):
     if not exit:
         return 0
 
-    centers = locateAll('achievement_collectable.png')
+    centers = locateAll('achievement_collectable.png', 10)
     for c in centers:
         ag.click(c[0], c[1])
         time.sleep(0.05)
@@ -135,7 +136,6 @@ def achiev():
     """
     checks if there are any achievements completed > attempts to collect them
     """
-    achiev = None
     while True:
         achiev = locate('achievements_on.png')
         if not achiev:
@@ -201,7 +201,7 @@ def handleFinish():
 
         if end is not None:
             print('run ended')
-            ag.click(end[0], end[1])
+            click_until(end, 'normal.png')
             mode = locateAll('normal.png')
             mode = mode[2]
             confirm = click_until(mode, 'confirm.png')
@@ -402,7 +402,7 @@ def pekos_magic():
         ag.click(jr[0], jr[1])
         conf = locate('confirm.png')
         click_until(conf, 'settings.png')
-
+"""
 def main(args):
     modeList = [k for k, v in vars(args).items() if v]
     if 'lvl' in modeList:
@@ -411,7 +411,7 @@ def main(args):
     if 's' in modeList:
         farm_summon()
     elif 'ad' in modeList:
-        farm_ad()
+        farm_ads()
     elif 'jr' in modeList:
         farm_jr()
     elif 'a' in modeList:
@@ -439,3 +439,11 @@ if __name__ == "__main__":
     actionType.add_argument("-lvl", type=int, help="reset to level 0-King, 1-Chief, 2-JR", choices = [0,1,2])
     args = parser.parse_args()
     main(args)
+
+"""
+print(REGION)
+print(ag.locateCenterOnScreen('pic/Przechwytywanie.PNG', region=REGION, confidence=CONFIDENCE))
+print(ag.size())
+x=0
+if x=1 :
+    print(x)
