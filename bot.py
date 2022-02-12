@@ -243,8 +243,9 @@ def enter_ad():
         print('timeout')
         return 0
     stone = ag.locateCenterOnScreen('pic/stone.png', region=REGION, confidence=CONFIDENCE)
-    if stone is not None:
+    if stone is None: #temp  change - farm all ads
         print('ad found')
+        time.sleep(0.5)
         ag.click(ad[0], ad[1])
         return 1
     else:
@@ -334,9 +335,9 @@ def farm_ads():
     then reset run
     parallel collect available achievements
     """
-    t_1 = threading.Thread(target=achiev_loop)
-    t_1.daemon = True
-    t_1.start()
+    #t_1 = threading.Thread(target=achiev_loop)
+    #t_1.daemon = True
+    #t_1.start()
     while not keyboard.is_pressed('q'):
         if enter_ad():
             time.sleep(40)
