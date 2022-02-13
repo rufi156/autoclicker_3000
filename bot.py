@@ -130,6 +130,7 @@ def collect_achiev(achiev):
 
     centers = locateAll('achievement_collectable.png', 10)
     if not centers:
+        ag.click(exit[0], exit[1])
         return 0
     for c in centers:
         ag.click(c[0], c[1])
