@@ -71,6 +71,9 @@ def locate_n_click(img, timeout=3):
     pic = locate(img, timeout)
     if pic != 0:
         ag.click(pic.x, pic.y)
+        return 1
+    else:
+        return 0
 
 def locateAll(pic, timeout=3600):
     """
@@ -363,21 +366,25 @@ def farm_mythic():
     """
     while not keyboard.is_pressed('q'):
         locate_n_click('exit.png', 6)
-        locate_n_click('exit.png')
         locate_n_click('settings.png')
         map = locate('map_select.png')
         x = map[0]+40
         y = map[1]
         ag.moveTo(x,y)
-        ag.drag(0,-140,0.2,button='left')
-        ag.click(ag.position())
-        locate_n_click('facebook_connected.png')
+        ag.drag(0,-160,0.2,button='left')
+        ag.click(ag.position()) #stop the scrolling animation
+        if not locate_n_click('facebook_connected.png'):
+            break
         locate_n_click('exit.png')
         locate_n_click('summon_ready.png')
         locate_n_click('red_summon.png')
         locate_n_click('skip_summon.png')
-        epic = locate('epic_summon.png', 2)
-        if not epic:
+        time.sleep(0.1)
+        #epic = locate('epic_summon.png', 0.5)
+        #legendary = locate('legendary_summon.png', 0.5)
+        epic = ag.locateCenterOnScreen(PICTURE_PATH+'epic_summon.png', region=REGION, confidence=CONFIDENCE)
+        legendary = ag.locateCenterOnScreen(PICTURE_PATH+'legendary_summon.png', region=REGION, confidence=CONFIDENCE)
+        if not epic and not legendary:
             print('Non epic found!')
             break
         locate_n_click('confirm_summon.png')
@@ -407,6 +414,32 @@ def pekos_magic():
         conf = locate('confirm.png')
         click_until(conf, 'settings.png')
 
+def buy_all():
+    """
+    checks for offers popups and accepts them
+    USE WITH ADBLOCKER
+    """
+    while True:
+        offer = ag.locateOnScreen('pic/seller_decline.png', region=REGION, confidence=CONFIDENCE)
+        if offer is not None:
+            offer_center = ag.center(offer)
+            ag.click(offer_center.x + offer.width, offer_center.y)
+        time.sleep(5)
+
+def buy_stones():
+    """
+    checks for seller accepts if stone seller, declines if other
+    """
+    while True:
+        decline = locate('seller_decline.png', 60)
+        if decline:
+            time.sleep(0.3)
+            ag.click(decline[0]+150, decline[1])
+            reset_normal_run(0)
+        else:
+            reset_normal_run(0)
+    #todo: ad stone verification
+
 def main(args):
     modeList = [k for k, v in vars(args).items() if v]
     if 'lvl' in modeList:
@@ -426,6 +459,8 @@ def main(args):
         farm_mythic()
     elif 'p' in modeList:
         pekos_magic()
+    elif 'b' in modeList:
+        buy_stones()
     else:
         print('wrong option, select -h for help')
 
@@ -439,6 +474,7 @@ if __name__ == "__main__":
     actionType.add_argument("-r", action="store_true", help="reset normal run")
     actionType.add_argument("-m", action="store_true", help="fb glitch summon for mythic")
     actionType.add_argument("-p", action="store_true", help="pekos magic")
+    actionType.add_argument("-b", action="store_true", help="buy all seller offers")
     actionType = parser.add_mutually_exclusive_group(required=False)
     actionType.add_argument("-lvl", type=int, help="reset to level 0-King, 1-Chief, 2-JR", choices = [0,1,2])
     args = parser.parse_args()
