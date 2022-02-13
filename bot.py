@@ -27,6 +27,7 @@ ImageGrab.grab = partial(ImageGrab.grab, all_screens=True)
 #all are tested, if found the ad can be skipped
 #if arrow/x is not recognised it waits for manual user click
 #
+#When using on different device, resolution doesnt matter, scaling does matter. Hence bluestacs windows size does matter.
 ###
 
 #find window with BlueStacks and set that as working region
@@ -488,6 +489,7 @@ print(ag.size())
 """
 #for i in range(0,100):
 #    ag.click(1074, 463)
+
 #todo:
-#check how pyautogui behaves on diff resolution
-#rescale pictures
+#resolution doesnt matter! bluestacs size does matter!
+#rescale pictures according to size
