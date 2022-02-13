@@ -486,7 +486,8 @@ print(REGION)
 print(ag.locateCenterOnScreen('pic/Przechwytywanie.PNG', region=REGION, confidence=CONFIDENCE))
 print(ag.size())
 """
-
+#for i in range(0,100):
+#    ag.click(1074, 463)
 #todo:
 #check how pyautogui behaves on diff resolution
 #rescale pictures
