@@ -315,13 +315,40 @@ def summon():
     ag.click(exit[0], exit[1])
     return 1
 
+def buy_all():
+    """
+    checks for offers popups and accepts them
+    USE WITH ADBLOCKER
+    """
+    while True:
+        offer = ag.locateOnScreen('pic/seller_decline.png', region=REGION, confidence=CONFIDENCE)
+        if offer is not None:
+            offer_center = ag.center(offer)
+            ag.click(offer_center.x + offer.width, offer_center.y)
+        time.sleep(5)
+
+def buy_stones():
+    """
+    checks for seller accepts if stone seller, declines if other
+    """
+    while True:
+        decline = locate('seller_decline.png', 60)
+        if decline:
+            time.sleep(0.3)
+            ag.click(decline[0]+150, decline[1])
+            reset_normal_run(0)
+        else:
+            reset_normal_run(0)
+    #todo: ad stone verification
+
 def farm_jr():
     """
     parallel collect gems for achievements, decline offers and reset run when finished
     """
     t_1 = threading.Thread(target=handleFinish)
     t_2 = threading.Thread(target=achiev_loop)
-    t_3 = threading.Thread(target=declineOffers)
+    #t_3 = threading.Thread(target=declineOffers)
+    t_3 = threading.Thread(target=buy_all)
 
     t_1.daemon = True
     t_2.daemon = True
@@ -416,31 +443,6 @@ def pekos_magic():
         conf = locate('confirm.png')
         click_until(conf, 'settings.png')
 
-def buy_all():
-    """
-    checks for offers popups and accepts them
-    USE WITH ADBLOCKER
-    """
-    while True:
-        offer = ag.locateOnScreen('pic/seller_decline.png', region=REGION, confidence=CONFIDENCE)
-        if offer is not None:
-            offer_center = ag.center(offer)
-            ag.click(offer_center.x + offer.width, offer_center.y)
-        time.sleep(5)
-
-def buy_stones():
-    """
-    checks for seller accepts if stone seller, declines if other
-    """
-    while True:
-        decline = locate('seller_decline.png', 60)
-        if decline:
-            time.sleep(0.3)
-            ag.click(decline[0]+150, decline[1])
-            reset_normal_run(0)
-        else:
-            reset_normal_run(0)
-    #todo: ad stone verification
 
 def main(args):
     modeList = [k for k, v in vars(args).items() if v]
