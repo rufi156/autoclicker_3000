@@ -325,6 +325,7 @@ def buy_all():
         if offer is not None:
             offer_center = ag.center(offer)
             ag.click(offer_center.x + offer.width, offer_center.y)
+            locate_n_click('ad_accept_reward.png')
         time.sleep(5)
 
 def buy_stones():
@@ -464,7 +465,7 @@ def main(args):
     elif 'p' in modeList:
         pekos_magic()
     elif 'b' in modeList:
-        buy_stones()
+        buy_all()
     else:
         print('wrong option, select -h for help')
 
