@@ -175,7 +175,7 @@ def achiev_loop():
         else:
             print('achiev collected')
 
-def reset_normal_run(level):
+def reset_run(level, normal = 1):
     """
     restets level
     Arg: reset into given level
@@ -193,7 +193,11 @@ def reset_normal_run(level):
         print('settings entered')
 
     click_until(map, 'normal.png')
-    mode = locateAll('normal.png')
+
+    if normal:
+        mode = locateAll('normal.png')
+    else:
+        mode = locateAll('hard.png')
     mode = mode[level]
     confirm = click_until(mode, 'confirm.png')
     click_until(confirm, 'settings.png')
@@ -337,9 +341,9 @@ def buy_stones():
         if decline:
             time.sleep(0.3)
             ag.click(decline[0]+150, decline[1])
-            reset_normal_run(0)
+            reset_run(0)
         else:
-            reset_normal_run(0)
+            reset_run(0)
     #todo: ad stone verification
 
 def farm_jr():
@@ -375,9 +379,9 @@ def farm_ads():
         if enter_ad():
             time.sleep(40)
             skip_ad()
-            reset_normal_run(0)
+            reset_run(0)
         else:
-            reset_normal_run(0)
+            reset_run(0)
 
 def farm_summon():
     """
@@ -459,7 +463,7 @@ def main(args):
     elif 'a' in modeList:
         achiev_loop()
     elif 'r' in modeList:
-        reset_normal_run(level)
+        reset_run(level)
     elif 'm' in modeList:
         farm_mythic()
     elif 'p' in modeList:
