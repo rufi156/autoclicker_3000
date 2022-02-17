@@ -205,7 +205,7 @@ def reset_run(level, normal = 1):
     click_until(confirm, 'settings.png')
     print('run restarted')
 
-def handleFinish():
+def handleFinish(lvl=2, normal = 1):
     """
     checks for finished run screen and resets run if found
     """
@@ -215,8 +215,11 @@ def handleFinish():
         if end is not None:
             print('run ended')
             click_until(end, 'normal.png')
-            mode = locateAll('normal.png')
-            mode = mode[2]
+            if normal:
+                mode = locateAll('normal.png')
+            else:
+                mode = locateAll('hard.png')
+            mode = mode[lvl]
             confirm = click_until(mode, 'confirm.png')
             click_until(confirm, 'settings.png')
             print('run restarted')
@@ -352,7 +355,7 @@ def farm_jr():
     """
     parallel collect gems for achievements, decline offers and reset run when finished
     """
-    t_1 = threading.Thread(target=handleFinish)
+    t_1 = threading.Thread(target=handleFinish, args=(2,0))
     t_2 = threading.Thread(target=achiev_loop)
     #t_3 = threading.Thread(target=declineOffers)
     t_3 = threading.Thread(target=buy_all)
