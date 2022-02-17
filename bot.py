@@ -152,6 +152,8 @@ def achiev():
             print('achiev found')
             break
     if not collect_achiev(achiev):
+        #if entered achiev but no exit found this failsafe exits achiev
+        locate_n_click('exit.png')
         print('timeout')
     else:
         print('achiev collected')
@@ -363,7 +365,7 @@ def farm_jr():
     t_2.start()
     t_3.start()
 
-    while not keyboard.is_pressed('q'):
+    while True:
         pass
 
 def farm_ads():
@@ -398,8 +400,9 @@ def farm_mythic():
     """
     summon red orbs for non epic, reset save file if summoned epic
     """
-    while not keyboard.is_pressed('q'):
+    while True:
         locate_n_click('exit.png', 6)
+        locate_n_click('exit.png', 2)
         locate_n_click('settings.png')
         map = locate('map_select.png')
         x = map[0]+40
@@ -490,11 +493,7 @@ if __name__ == "__main__":
     main(args)
 
 
-"""
-print(REGION)
-print(ag.locateCenterOnScreen('pic/Przechwytywanie.PNG', region=REGION, confidence=CONFIDENCE))
-print(ag.size())
-"""
+
 #for i in range(0,100):
 #    ag.click(1074, 463)
 
