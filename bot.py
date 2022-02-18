@@ -1,3 +1,5 @@
+
+from discordwebhook import Discord
 import numpy as np
 from sklearn.cluster import DBSCAN
 import os
@@ -35,6 +37,17 @@ region_window = gw.getWindowsWithTitle('BlueStack')[0]
 REGION = (region_window.left, region_window.top, region_window.width, region_window.height)
 CONFIDENCE = 0.9
 PICTURE_PATH = 'pic/'
+WEBHOOK = 'https://discord.com/api/webhooks/944332536178417785/bT1RAtJxKUYh4YikVBmOG_6AOG8jg0DmV9HGI2tRj7Hh82L_9PTUS2iJvZ3yW8-cz9p3'
+
+def notifyInactivity():
+    discord = Discord(url=WEBHOOK)
+    position = ag.position()
+    while True:
+        time.sleep(60*5)
+        if position == ag.position():
+            discord.post(content='mouse in the same place for 5 minutes')
+        else:
+            position = ag.position()
 
 def cluster(array, sort_by):
     """
@@ -152,8 +165,7 @@ def achiev():
             print('achiev found')
             break
     if not collect_achiev(achiev):
-        #if entered achiev but no exit found this failsafe exits achiev
-        locate_n_click('exit.png')
+
         print('timeout')
     else:
         print('achiev collected')
@@ -163,19 +175,18 @@ def achiev_loop():
     Indefinite achiev()
     """
     while True:
-        achiev = None
-        while True:
-            achiev = locate('achievements_on.png')
-            if not achiev:
-                print('timeout')
-                continue
-            else:
-                print('achiev found')
-                break
-        if not collect_achiev(achiev):
+        achiev = locate('achievements_on.png')
+        if not achiev:
             print('timeout')
+            continue
         else:
-            print('achiev collected')
+            print('achiev found')
+            if not collect_achiev(achiev):
+                #if entered achiev but no exit found this failsafe exits achiev
+                locate_n_click('exit.png')
+                print('timeout')
+            else:
+                print('achiev collected')
 
 def reset_run(level, normal = 1):
     """
@@ -226,7 +237,7 @@ def handleFinish(lvl=2, normal = 1):
             #optional logging of restarts
             #with open('restart_log.txt', 'a') as log:
             #    log.write('restart at: %s\n' % (datetime.datetime.now()))
-        time.sleep(60)
+        time.sleep(10)
 
 def declineOffers():
     """
@@ -329,13 +340,13 @@ def buy_all():
     checks for offers popups and accepts them
     USE WITH ADBLOCKER
     """
-    while True:
-        offer = ag.locateOnScreen('pic/seller_decline.png', region=REGION, confidence=CONFIDENCE)
-        if offer is not None:
-            offer_center = ag.center(offer)
-            ag.click(offer_center.x + offer.width, offer_center.y)
-            locate_n_click('ad_accept_reward.png')
-        time.sleep(5)
+    offer = ag.locateOnScreen('pic/seller_decline.png', region=REGION, confidence=CONFIDENCE)
+    if offer is not None:
+        offer_center = ag.center(offer)
+        time.sleep(0.2)
+        ag.click(offer_center.x + offer.width, offer_center.y)
+        locate_n_click('ad_accept_reward.png')
+    return 1
 
 def buy_stones():
     """
@@ -355,18 +366,16 @@ def farm_jr():
     """
     parallel collect gems for achievements, decline offers and reset run when finished
     """
-    t_1 = threading.Thread(target=handleFinish, args=(2,0))
-    t_2 = threading.Thread(target=achiev_loop)
+    t_1 = threading.Thread(target=handleFinish, args=(2,0), daemon=True)
+    t_2 = threading.Thread(target=achiev_loop, daemon=True)
     #t_3 = threading.Thread(target=declineOffers)
-    t_3 = threading.Thread(target=buy_all)
-
-    t_1.daemon = True
-    t_2.daemon = True
-    t_3.daemon = True
+    t_3 = threading.Thread(target=buy_all, daemon=True)
+    t_4 = threading.Thread(target=notifyInactivity, daemon=True)
 
     t_1.start()
     t_2.start()
     t_3.start()
+    t_4.start()
 
     while True:
         pass
@@ -393,9 +402,10 @@ def farm_summon():
     summon and collect achievements interchangably
     simultaneously decline offers (not sure if working properly, not colliding with the loop)
     """
-    t_1 = threading.Thread(target=declineOffers)
-    t_1.daemon = True
+    t_1 = threading.Thread(target=declineOffers, daemon=True)
+    t_2 = threading.Thread(target=notifyInactivity, daemon=True)
     t_1.start()
+    t_2.start()
     while summon():
         achiev()
 
@@ -403,46 +413,45 @@ def farm_mythic():
     """
     summon red orbs for non epic, reset save file if summoned epic
     """
-    while True:
-        locate_n_click('exit.png', 6)
-        locate_n_click('exit.png', 2)
-        locate_n_click('settings.png')
-        map = locate('map_select.png')
-        x = map[0]+40
-        y = map[1]
-        ag.moveTo(x,y)
-        ag.drag(0,-160,0.2,button='left')
-        ag.click(ag.position()) #stop the scrolling animation
-        if not locate_n_click('facebook_connected.png'):
-            break
-        locate_n_click('exit.png')
-        locate_n_click('summon_ready.png')
-        locate_n_click('red_summon.png')
-        locate_n_click('skip_summon.png')
-        time.sleep(0.1)
-        #epic = locate('epic_summon.png', 0.5)
-        #legendary = locate('legendary_summon.png', 0.5)
-        epic = ag.locateCenterOnScreen(PICTURE_PATH+'epic_summon.png', region=REGION, confidence=CONFIDENCE)
-        legendary = ag.locateCenterOnScreen(PICTURE_PATH+'legendary_summon.png', region=REGION, confidence=CONFIDENCE)
-        if not epic and not legendary:
-            print('Non epic found!')
-            break
-        locate_n_click('confirm_summon.png')
-        locate_n_click('exit.png')
-        locate_n_click('settings.png')
-        locate_n_click('fb_not_connected.png')
-        locate_n_click('fb_connect_now.png')
-        locate_n_click('fb_accept.png', 30)
-        save = locate('save_found.png')
-        ag.click(save.x, save.y+50)
-        locate_n_click('save_confirm.png')
+    locate_n_click('exit.png', 6)
+    locate_n_click('exit.png', 2)
+    locate_n_click('settings.png')
+    map = locate('map_select.png')
+    x = map[0]+40
+    y = map[1]
+    ag.moveTo(x,y)
+    ag.drag(0,-160,0.2,button='left')
+    ag.click(ag.position()) #stop the scrolling animation
+    if not locate_n_click('facebook_connected.png'):
+        return 0
+    locate_n_click('exit.png')
+    locate_n_click('summon_ready.png')
+    locate_n_click('red_summon.png')
+    locate_n_click('skip_summon.png')
+    time.sleep(0.1)
+    #epic = locate('epic_summon.png', 0.5)
+    #legendary = locate('legendary_summon.png', 0.5)
+    epic = ag.locateCenterOnScreen(PICTURE_PATH+'epic_summon.png', region=REGION, confidence=CONFIDENCE)
+    legendary = ag.locateCenterOnScreen(PICTURE_PATH+'legendary_summon.png', region=REGION, confidence=CONFIDENCE)
+    if not epic and not legendary:
+        print('Non epic found!')
+        return 0
+    locate_n_click('confirm_summon.png')
+    locate_n_click('exit.png')
+    locate_n_click('settings.png')
+    locate_n_click('fb_not_connected.png')
+    locate_n_click('fb_connect_now.png')
+    locate_n_click('fb_accept.png', 30)
+    save = locate('save_found.png')
+    ag.click(save.x, save.y+50)
+    locate_n_click('save_confirm.png')
+    return 1
 
 def pekos_magic():
     """
     kill first two jr hard bosses and reset
     """
-    t_1 = threading.Thread(target=achiev_loop)
-    t_1.daemon = True
+    t_1 = threading.Thread(target=achiev_loop, daemon=True)
     t_1.start()
     while not keyboard.is_pressed('q'):
         time.sleep(30)
@@ -471,11 +480,17 @@ def main(args):
     elif 'r' in modeList:
         reset_run(level)
     elif 'm' in modeList:
-        farm_mythic()
+        t_1 = threading.Thread(target=notifyInactivity, daemon=True)
+        t_1.start()
+        while farm_mythic():
+            pass
     elif 'p' in modeList:
         pekos_magic()
     elif 'b' in modeList:
-        buy_all()
+        t_1 = threading.Thread(target=notifyInactivity, daemon=True)
+        t_1.start()
+        while buy_all():
+            time.sleep(2)
     else:
         print('wrong option, select -h for help')
 
