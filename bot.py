@@ -369,16 +369,16 @@ def farm_jr():
     t_1 = threading.Thread(target=handleFinish, args=(2,0), daemon=True)
     t_2 = threading.Thread(target=achiev_loop, daemon=True)
     #t_3 = threading.Thread(target=declineOffers)
-    t_3 = threading.Thread(target=buy_all, daemon=True)
+    #t_3 = threading.Thread(target=buy_all, daemon=True)
     t_4 = threading.Thread(target=notifyInactivity, daemon=True)
 
     t_1.start()
     t_2.start()
-    t_3.start()
+    #t_3.start()
     t_4.start()
 
-    while True:
-        pass
+    while buy_all():
+        time.sleep(2)
 
 def farm_ads():
     """
