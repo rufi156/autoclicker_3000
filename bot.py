@@ -41,13 +41,21 @@ WEBHOOK = 'https://discord.com/api/webhooks/944332536178417785/bT1RAtJxKUYh4YikV
 
 def notifyInactivity():
     discord = Discord(url=WEBHOOK)
-    position = ag.position()
+    timeout = 60*5
+    refractory_period = 60*60
     while True:
-        time.sleep(60*5)
-        if position == ag.position():
-            discord.post(content='mouse in the same place for 5 minutes')
-        else:
-            position = ag.position()
+        isNotMoving = 0
+        oldPosition = ag.position()
+        while isNotMoving < timeout:
+            time.sleep(0.5)
+            newPosition = ag.position()
+            if newPosition == oldPosition:
+                isNotMoving += 0.5
+            else:
+                isNotMoving = 0
+            oldPosition = newPosition
+        discord.post(content=f'mouse stationary for {timeout/60} minutes')
+        time.sleep(refractory_period)
 
 def cluster(array, sort_by):
     """
@@ -63,7 +71,7 @@ def cluster(array, sort_by):
     representatives = sorted(representatives, key=lambda tup: tup[1])
     return representatives
 
-def locate(img, timeout=3600):
+def locate(img, timeout=3600, gray=False):
     """
     try to find given image for timeout seconds or until found
     Arg: img to serach for
@@ -73,7 +81,7 @@ def locate(img, timeout=3600):
     point = None
     timer = 0
     while timer<timeout and point is None:
-        point = ag.locateCenterOnScreen(PICTURE_PATH+img, region=REGION, confidence=CONFIDENCE)
+        point = ag.locateCenterOnScreen(PICTURE_PATH+img, grayscale=gray, region=REGION, confidence=CONFIDENCE)
         time.sleep(0.5)
         timer += 0.5
     if timer == timeout:
@@ -369,12 +377,12 @@ def farm_jr():
     t_1 = threading.Thread(target=handleFinish, args=(2,0), daemon=True)
     t_2 = threading.Thread(target=achiev_loop, daemon=True)
     #t_3 = threading.Thread(target=declineOffers)
-    #t_3 = threading.Thread(target=buy_all, daemon=True)
+    t_3 = threading.Thread(target=buy_all, daemon=True)
     t_4 = threading.Thread(target=notifyInactivity, daemon=True)
 
     t_1.start()
     t_2.start()
-    #t_3.start()
+    t_3.start()
     t_4.start()
 
     while buy_all():
@@ -509,8 +517,6 @@ if __name__ == "__main__":
     actionType.add_argument("-lvl", type=int, help="reset to level 0-King, 1-Chief, 2-JR", choices = [0,1,2])
     args = parser.parse_args()
     main(args)
-
-
 
 #for i in range(0,100):
 #    ag.click(1074, 463)
