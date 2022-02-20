@@ -43,6 +43,7 @@ def notifyInactivity():
     discord = Discord(url=WEBHOOK)
     timeout = 60*5
     refractory_period = 60*60
+    last_notification = 0.0
     while True:
         isNotMoving = 0
         oldPosition = ag.position()
@@ -54,8 +55,9 @@ def notifyInactivity():
             else:
                 isNotMoving = 0
             oldPosition = newPosition
-        discord.post(content=f'mouse stationary for {timeout/60} minutes')
-        time.sleep(refractory_period)
+        if time.time() - last_notification >= refractory_period:
+            discord.post(content=f'mouse stationary for {timeout/60} minutes')
+            last_notification = time.time()
 
 def cluster(array, sort_by):
     """
