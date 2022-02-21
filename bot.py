@@ -423,6 +423,7 @@ def farm_mythic():
     """
     summon red orbs for non epic, reset save file if summoned epic
     """
+    discord = Discord(url=WEBHOOK)
     locate_n_click('exit.png', 6)
     locate_n_click('exit.png', 2)
     locate_n_click('settings.png')
@@ -433,6 +434,7 @@ def farm_mythic():
     ag.drag(0,-160,0.2,button='left')
     ag.click(ag.position()) #stop the scrolling animation
     if not locate_n_click('facebook_connected.png'):
+        discord.post(content=f'Error: couldnt disconnect FB')
         return 0
     locate_n_click('exit.png')
     locate_n_click('summon_ready.png')
@@ -444,7 +446,8 @@ def farm_mythic():
     epic = ag.locateCenterOnScreen(PICTURE_PATH+'epic_summon.png', region=REGION, confidence=CONFIDENCE)
     legendary = ag.locateCenterOnScreen(PICTURE_PATH+'legendary_summon.png', region=REGION, confidence=CONFIDENCE)
     if not epic and not legendary:
-        print('Non epic found!')
+        print('Mythic found!')
+        discord.post(content=f'Mythic found!')
         return 0
     locate_n_click('confirm_summon.png')
     locate_n_click('exit.png')
@@ -522,7 +525,8 @@ if __name__ == "__main__":
 
 #for i in range(0,100):
 #    ag.click(1074, 463)
-
+#print(locate('fb_not_connected.png'))
+#print(REGION)
 #todo:
 #resolution doesnt matter! bluestacs size does matter!
 #rescale pictures according to size
