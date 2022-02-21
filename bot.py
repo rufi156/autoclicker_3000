@@ -35,9 +35,12 @@ ImageGrab.grab = partial(ImageGrab.grab, all_screens=True)
 #find window with BlueStacks and set that as working region
 region_window = gw.getWindowsWithTitle('BlueStack')[0]
 REGION = (region_window.left, region_window.top, region_window.width, region_window.height)
+# pics taken at REGION = (1276, 69, 381, 747) and screen Size(width=1920, height=1080)
+region_window.resizeTo(381, 747)
 CONFIDENCE = 0.9
 PICTURE_PATH = 'pic/'
 WEBHOOK = 'https://discord.com/api/webhooks/944332536178417785/bT1RAtJxKUYh4YikVBmOG_6AOG8jg0DmV9HGI2tRj7Hh82L_9PTUS2iJvZ3yW8-cz9p3'
+
 
 def notifyInactivity():
     discord = Discord(url=WEBHOOK)
@@ -527,6 +530,7 @@ if __name__ == "__main__":
 #    ag.click(1074, 463)
 #print(locate('fb_not_connected.png'))
 #print(REGION)
+#print(ag.size())
 #todo:
 #resolution doesnt matter! bluestacs size does matter!
 #rescale pictures according to size
