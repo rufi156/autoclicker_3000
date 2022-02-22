@@ -336,7 +336,7 @@ def summon():
     portal = locate('summon_ready.png', 3)
     if not portal:
         return 0
-    click_until(portal, 'exit_summon.png')
+    click_until(portal, 'exit.png')
     summon = ag.locateCenterOnScreen(PICTURE_PATH+'orb_summon.png', region=REGION, confidence=CONFIDENCE)
     summon2 = ag.locateCenterOnScreen(PICTURE_PATH+'orb_summon10.png', region=REGION, confidence=CONFIDENCE)
     if summon is not None:
@@ -344,7 +344,7 @@ def summon():
     elif summon2 is not None:
         skip = click_until(summon2, 'skip_summon.png')
     conf = click_until(skip, 'confirm_summon.png')
-    exit = click_until(conf, 'exit_summon.png')
+    exit = click_until(conf, 'exit.png')
     ag.click(exit[0], exit[1])
     return 1
 
