@@ -17,7 +17,7 @@ ImageGrab.grab = partial(ImageGrab.grab, all_screens=True)
 
 ###
 #Bot for Summoners Greed 31.01.2022
-#Author: RafalRobet K.
+#Author: RafalRobet Karpiński
 #farming ads for stones for special monsters:
 #   king normal > wait for ad seller > if stones > watch&collect > restart
 #farming jr normal for gems and gold
@@ -39,7 +39,9 @@ REGION = (region_window.left, region_window.top, region_window.width, region_win
 region_window.resizeTo(381, 747)
 CONFIDENCE = 0.9
 PICTURE_PATH = 'pic/'
-WEBHOOK = 'https://discord.com/api/webhooks/944332536178417785/bT1RAtJxKUYh4YikVBmOG_6AOG8jg0DmV9HGI2tRj7Hh82L_9PTUS2iJvZ3yW8-cz9p3'
+WEBHOOK = ''
+with open('webhook.txt', 'r') as f:
+    WEBHOOK = f.readline()
 
 
 def notifyInactivity():
