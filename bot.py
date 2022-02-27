@@ -34,9 +34,9 @@ ImageGrab.grab = partial(ImageGrab.grab, all_screens=True)
 
 #find window with BlueStacks and set that as working region
 region_window = gw.getWindowsWithTitle('BlueStack')[0]
-REGION = (region_window.left, region_window.top, region_window.width, region_window.height)
 # pics taken at REGION = (1276, 69, 381, 747) and screen Size(width=1920, height=1080)
 region_window.resizeTo(381, 747)
+REGION = (region_window.left, region_window.top, region_window.width, region_window.height)
 CONFIDENCE = 0.9
 PICTURE_PATH = 'pic/'
 WEBHOOK = ''
@@ -44,9 +44,9 @@ with open('webhook.txt', 'r') as f:
     WEBHOOK = f.readline()
 
 
-def notifyInactivity():
+def notifyInactivity(limit=60*5):
     discord = Discord(url=WEBHOOK)
-    timeout = 60*5
+    timeout = limit
     refractory_period = 60*60
     last_notification = 0.0
     while True:
@@ -235,23 +235,27 @@ def handleFinish(lvl=2, normal = 1):
     """
     checks for finished run screen and resets run if found
     """
-    while True:
-        end = ag.locateCenterOnScreen('pic/finished_run.png', region=REGION, confidence=CONFIDENCE)
+    end = locate('finished_run.png')
+    if not end:
+        return 0
+    print('run ended')
+    click_until(end, 'normal.png')
+    if normal:
+        mode = locateAll('normal.png')
+    else:
+        mode = locateAll('hard.png')
+    mode = mode[lvl]
+    confirm = click_until(mode, 'confirm.png')
+    click_until(confirm, 'settings.png')
+    print('run restarted')
+    return 1
+    #optional logging of restarts
+    #with open('restart_log.txt', 'a') as log:
+    #    log.write('restart at: %s\n' % (datetime.datetime.now()))
 
-        if end is not None:
-            print('run ended')
-            click_until(end, 'normal.png')
-            if normal:
-                mode = locateAll('normal.png')
-            else:
-                mode = locateAll('hard.png')
-            mode = mode[lvl]
-            confirm = click_until(mode, 'confirm.png')
-            click_until(confirm, 'settings.png')
-            print('run restarted')
-            #optional logging of restarts
-            #with open('restart_log.txt', 'a') as log:
-            #    log.write('restart at: %s\n' % (datetime.datetime.now()))
+def handleFinish_loop(lvl=2, normal=1):
+    while True:
+        handleFinish(lvl, normal)
         time.sleep(10)
 
 def declineOffers():
@@ -381,7 +385,7 @@ def farm_jr():
     """
     parallel collect gems for achievements, decline offers and reset run when finished
     """
-    t_1 = threading.Thread(target=handleFinish, args=(2,0), daemon=True)
+    t_1 = threading.Thread(target=handleFinish_loop, args=(2,0), daemon=True)
     t_2 = threading.Thread(target=achiev_loop, daemon=True)
     #t_3 = threading.Thread(target=declineOffers)
     t_3 = threading.Thread(target=buy_all, daemon=True)
@@ -481,6 +485,79 @@ def pekos_magic():
         conf = locate('confirm.png')
         click_until(conf, 'settings.png')
 
+def cmg():
+    """
+    loading game to last wave fills offline gold chest
+    collect, finish game, reload to last wave
+    """
+    discord = Discord(url=WEBHOOK)
+    if not handleFinish(0,0):
+        return 0
+    set = locate('settings.png')
+    click_until(set, 'map_select.png')
+    map = locate('map_select.png')
+    x = map[0]+40
+    y = map[1]+20
+    ag.moveTo(x,y)
+    ag.drag(0,-150,0.3,button='left')
+    ag.click(ag.position()) #stop the scrolling animation
+    time.sleep(0.01)
+    if not locate_n_click('facebook_connected.png'):
+        #try to scroll again
+        ag.moveTo(x,y)
+        ag.drag(0,-150,0.3,button='left')
+        ag.click(ag.position())
+        time.sleep(0.01)
+        if not locate_n_click('facebook_connected.png'):
+            discord.post(content=f'Error: couldnt disconnect FB')
+            return 0
+    locate_n_click('fb_not_connected.png')
+    if not locate_n_click('fb_connect_now.png'): #safeguard against not registered click, click_until cant be used
+        locate_n_click('fb_not_connected.png')
+        locate_n_click('fb_connect_now.png')
+    locate_n_click('fb_accept.png', 30)
+    save = locate('save_found2.png')
+    ag.click(save.x, save.y+50)
+    locate_n_click('save_confirm.png')
+    locate_n_click('exit.png', 6)
+    locate_n_click('exit.png', 2)
+    gold = locate('offline_gold.png')
+    if not gold:
+        discord.post(content=f'Error: couldnt find offline gold')
+        return 0
+    ag.click(gold.x, gold.y)
+    locate_n_click('offline_gold_collect.png')
+    locate_n_click('ad_accept_reward.png')
+
+def cmg_loop():
+    t_1 = threading.Thread(target=notifyInactivity, args=(60*7,), daemon=True)
+    t_1.start()
+    while True:
+        timer = 0
+        while timer<80:
+            cmg()
+            timer += 1
+        time.sleep(60*6)
+
+def king15():
+    offer = None
+    timer = 0
+    timeout = 60
+    while timer<timeout and offer is None:
+        offer = ag.locateOnScreen('pic/seller_decline.png', region=REGION, confidence=CONFIDENCE)
+        timer += 0.2
+        time.sleep(0.2)
+    if offer is not None:
+        offer_center = ag.center(offer)
+        accept = click_until([offer_center.x + offer.width, offer_center.y], 'ad_accept_reward.png')
+        ag.click(accept.x, accept.y)
+    reset_run(0,1)
+
+def king15_loop():
+    t_1 = threading.Thread(target=notifyInactivity, args=(60*5,), daemon=True)
+    t_1.start()
+    while True:
+        king15()
 
 def main(args):
     modeList = [k for k, v in vars(args).items() if v]
@@ -504,6 +581,10 @@ def main(args):
             pass
     elif 'p' in modeList:
         pekos_magic()
+    elif 'cmg' in modeList:
+        cmg_loop()
+    elif 'k' in modeList:
+        king15_loop()
     elif 'b' in modeList:
         t_1 = threading.Thread(target=notifyInactivity, daemon=True)
         t_1.start()
@@ -523,6 +604,8 @@ if __name__ == "__main__":
     actionType.add_argument("-m", action="store_true", help="fb glitch summon for mythic")
     actionType.add_argument("-p", action="store_true", help="pekos magic")
     actionType.add_argument("-b", action="store_true", help="buy all seller offers")
+    actionType.add_argument("-cmg", action="store_true", help="cmg glitch")
+    actionType.add_argument("-k", action="store_true", help="King 1-5")
     actionType = parser.add_mutually_exclusive_group(required=False)
     actionType.add_argument("-lvl", type=int, help="reset to level 0-King, 1-Chief, 2-JR", choices = [0,1,2])
     args = parser.parse_args()
