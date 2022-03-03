@@ -37,6 +37,7 @@ region_window = gw.getWindowsWithTitle('BlueStack')[0]
 # pics taken at REGION = (1276, 69, 381, 747) and screen Size(width=1920, height=1080)
 region_window.resizeTo(381, 747)
 REGION = (region_window.left, region_window.top, region_window.width, region_window.height)
+print(f'window: {REGION} screen: {ag.size()}')
 CONFIDENCE = 0.9
 PICTURE_PATH = 'pic/'
 WEBHOOK = ''
@@ -56,7 +57,7 @@ def notifyInactivity(limit=60*5):
             time.sleep(0.5)
             newPosition = ag.position()
             if newPosition == oldPosition:
-                isNotMoving += 0.5
+                isNotMoving = round(isNotMoving+0.5, 1)
             else:
                 isNotMoving = 0
             oldPosition = newPosition
@@ -89,8 +90,8 @@ def locate(img, timeout=3600, gray=False):
     timer = 0
     while timer<timeout and point is None:
         point = ag.locateCenterOnScreen(PICTURE_PATH+img, grayscale=gray, region=REGION, confidence=CONFIDENCE)
-        time.sleep(0.5)
-        timer += 0.5
+        time.sleep(0.1)
+        timer = round(timer+0.1, 1)
     if timer == timeout:
         return 0
     else:
@@ -115,7 +116,7 @@ def locateAll(pic, timeout=3600):
     while timer<timeout and len(points) == 0:
         points = list(ag.locateAllOnScreen(PICTURE_PATH+pic, region=REGION, confidence=CONFIDENCE))
         time.sleep(0.5)
-        timer += 0.5
+        timer = round(timer+0.5, 1)
     if timer == timeout:
         return 0
     else:
@@ -138,7 +139,7 @@ def click_until(point, until, timeout=3600):
     while timer<timeout and exit is None:
         ag.click(point[0], point[1])
         time.sleep(0.5)
-        timer += 0.5
+        timer = round(timer+0.5, 1)
         exit = ag.locateCenterOnScreen(PICTURE_PATH+until, region=REGION, confidence=CONFIDENCE)
     if timer == timeout:
         return 0
@@ -491,7 +492,7 @@ def cmg():
     collect, finish game, reload to last wave
     """
     discord = Discord(url=WEBHOOK)
-    if not handleFinish(0,0):
+    if not handleFinish(2,0):
         return 0
     set = locate('settings.png')
     click_until(set, 'map_select.png')
@@ -516,7 +517,7 @@ def cmg():
         locate_n_click('fb_not_connected.png')
         locate_n_click('fb_connect_now.png')
     locate_n_click('fb_accept.png', 30)
-    save = locate('save_found2.png')
+    save = locate('save_found.png')
     ag.click(save.x, save.y+50)
     locate_n_click('save_confirm.png')
     locate_n_click('exit.png', 6)
@@ -530,14 +531,14 @@ def cmg():
     locate_n_click('ad_accept_reward.png')
 
 def cmg_loop():
-    t_1 = threading.Thread(target=notifyInactivity, args=(60*7,), daemon=True)
+    t_1 = threading.Thread(target=notifyInactivity, args=(60*2,), daemon=True)
     t_1.start()
     while True:
         timer = 0
-        while timer<80:
+        while timer<100:
             cmg()
             timer += 1
-        time.sleep(60*6)
+        time.sleep(60*1)
 
 def king15():
     offer = None
@@ -545,7 +546,7 @@ def king15():
     timeout = 60
     while timer<timeout and offer is None:
         offer = ag.locateOnScreen('pic/seller_decline.png', region=REGION, confidence=CONFIDENCE)
-        timer += 0.2
+        timer = round(timer+0.2, 1)
         time.sleep(0.2)
     if offer is not None:
         offer_center = ag.center(offer)
@@ -611,11 +612,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
     main(args)
 
-#for i in range(0,100):
-#    ag.click(1074, 463)
 #print(locate('fb_not_connected.png'))
 #print(REGION)
 #print(ag.size())
 #todo:
-#resolution doesnt matter! bluestacs size does matter!
-#rescale pictures according to size
+#resolution doesnt matter! bluestacs size does matter! and bluestacs resolution
+#how to make sure bluestacks open in the same resolution?
