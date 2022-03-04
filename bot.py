@@ -214,15 +214,15 @@ def reset_run(level, normal = 1):
         print('settings timeout')
     else:
         print('settings found')
-
+    """
     map = click_until(settings, 'map_select.png')
     if not map:
         print('settings timeout')
     else:
         print('settings entered')
-
-    click_until(map, 'normal.png')
-
+    """
+    click_until((settings.x, settings.y-30), 'normal.png')
+    
     if normal:
         mode = locateAll('normal.png')
     else:
